@@ -17,38 +17,13 @@ def insert_labels(parent, labels):
         insert_leaf(label, "name", label_name)
         insert_leaf(label, "attributes", "")
 
-
-def insert_dummy_tracks(parent):
-    track_id = 0
-    for x in range(3):
-        for y in range(3):
-            track = ET.SubElement(parent, "track",\
-                     {"id": str(track_id), "label" : "Car"})
-            track_id += 1
-            for frame in range(0,15,3):
-                xtl = x*300 + 5*frame
-                ytl = y*300
-                xbr = x*300 + 50 + 5*frame
-                ybr = y*300 + 50
-                ET.SubElement(track, "box", {"frame": str(frame),\
-                                            "xtl": str(xtl),
-                                            "ytl": str(ytl),
-                                            "xbr": str(xbr),
-                                            "ybr": str(ybr),
-                                            "outside": "0",
-                                            "occluded": "0",
-                                            "keyframe": "1"})
-
 def insert_tracks_from_list(parent, data, labels):
     for i, track_class in enumerate(data):
         for track_id, bboxes in track_class.items():
             track_node = ET.SubElement(parent, "track",\
                         {"id": str(track_id), "label" : labels[i]})
             for j, frame in enumerate(bboxes):
-                xtl = frame[0]
-                ytl = frame[1]
-                xbr = frame[2]
-                ybr = frame[3]
+                xtl, ytl, xbr, ybr = frame[:4]
                 frame_nmbr  = frame[4] - 1
                 outside = "1" if (j == len(bboxes) - 1) else "0"
                 ET.SubElement(track_node, "box", {"frame": str(frame_nmbr),\
