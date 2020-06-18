@@ -49,7 +49,7 @@ def insert_tracks_from_list(parent, data, labels):
                 ytl = frame[1]
                 xbr = frame[2]
                 ybr = frame[3]
-                frame_nmbr  = frame[4]
+                frame_nmbr  = frame[4] - 1
                 outside = "1" if (j == len(bboxes) - 1) else "0"
                 ET.SubElement(track_node, "box", {"frame": str(frame_nmbr),\
                                             "xtl": str(xtl),
