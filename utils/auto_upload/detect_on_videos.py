@@ -104,7 +104,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_classes", default=1, type=int, help="Number of classes in dataset")
     args = parser.parse_args()
     videos = os.listdir(args.input)
-
+    videos.sort()
     for i, video_path in enumerate(videos):
         detector = VideoDetector(os.path.join(args.input, video_path), args.output, args.model_name, args.num_classes)
         print(f"Starting detection on video {i+1}/{len(videos)}: " + video_path)

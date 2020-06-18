@@ -40,7 +40,7 @@ def track_from_detections(detection_path, output_path, num_classes):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Interface for running detection on videos")
-    parser.add_argument("input", type=str, help = "Directory for input videos")
+    parser.add_argument("input", type=str, help = "Directory for input jsons")
     parser.add_argument("output", type=str, help = "Directory for output jsons")
     parser.add_argument("--num_classes", default=1, type=int, help="Number of classes in dataset")
     args = parser.parse_args()

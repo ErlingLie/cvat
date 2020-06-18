@@ -89,7 +89,7 @@ if __name__ == "__main__":
     parser.add_argument("username", type=str, help = "Username")
     parser.add_argument("password", type=str, help = "Password")
     args = parser.parse_args()
-
+    classes = ["Lobster", "Interaction"]
     videos = os.listdir(args.input_videos)
     tracks = os.listdir(args.input_tracks)
     username = args.username
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     task_count = 1
     ids = []
     videos.sort()
-    print(videos)
+
     for video in videos:
         response = subprocess.check_output([
             "../cli/cli.py",
@@ -114,15 +114,16 @@ if __name__ == "__main__":
         ids.append(int(response.split()[3]))
         print("Sleeping 60 seconds")
         time.sleep(60)
-    print(ids)
+
+
     for i, track_file in enumerate(tracks):
         print("Sleeping 40")
         time.sleep(40)
-        annotations = make_meta_information(2000, ["Lobster", "Interaction"])
+        annotations = make_meta_information(2000, classes )
         with open(os.path.join(args.input_tracks, track_file), "r") as json_file:
             track_data = json.load(json_file)
         print("Making xml file from " + track_file)
-        insert_tracks_from_list(annotations, track_data, ["Lobster", "Interaction"])
+        insert_tracks_from_list(annotations, track_data, classes)
         mydata = ET.tostring(annotations, encoding="unicode")
         mydata = xml.dom.minidom.parseString(mydata)
         with open("Temp.xml", "w") as myfile:
