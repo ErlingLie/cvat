@@ -112,10 +112,12 @@ if __name__ == "__main__":
         task_count += 1
         print(response)
         ids.append(int(response.split()[3]))
-        print("Sleeping 20 seconds")
-        time.sleep(20)
+        print("Sleeping 60 seconds")
+        time.sleep(60)
     print(ids)
     for i, track_file in enumerate(tracks):
+        print("Sleeping 40")
+        time.sleep(40)
         annotations = make_meta_information(2000, ["Lobster", "Interaction"])
         with open(os.path.join(args.input_tracks, track_file), "r") as json_file:
             track_data = json.load(json_file)
