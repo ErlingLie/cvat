@@ -5,6 +5,7 @@ import os
 import json
 import subprocess
 from datetime import datetime
+import time
 
 def insert_leaf(parent, name, text):
     sub = ET.SubElement(parent, name)
@@ -43,18 +44,19 @@ def insert_tracks_from_list(parent, data, labels):
         for track_id, bboxes in track_class.items():
             track_node = ET.SubElement(parent, "track",\
                         {"id": str(track_id), "label" : labels[i]})
-            for frame in bboxes:
+            for j, frame in enumerate(bboxes):
                 xtl = frame[0]
                 ytl = frame[1]
                 xbr = frame[2]
                 ybr = frame[3]
                 frame_nmbr  = frame[4]
+                outside = "1" if (j == len(bboxes) - 1) else "0"
                 ET.SubElement(track_node, "box", {"frame": str(frame_nmbr),\
                                             "xtl": str(xtl),
                                             "ytl": str(ytl),
                                             "xbr": str(xbr),
                                             "ybr": str(ybr),
-                                            "outside": "0",
+                                            "outside": outside,
                                             "occluded": "0",
                                             "keyframe": "1"})
 
@@ -95,6 +97,7 @@ if __name__ == "__main__":
     task_count = 1
     ids = []
     videos.sort()
+    print(videos)
     for video in videos:
         response = subprocess.check_output([
             "../cli/cli.py",
@@ -109,7 +112,8 @@ if __name__ == "__main__":
         task_count += 1
         print(response)
         ids.append(int(response.split()[3]))
-        time.sleep(10)
+        print("Sleeping 20 seconds")
+        time.sleep(20)
     print(ids)
     for i, track_file in enumerate(tracks):
         annotations = make_meta_information(2000, ["Lobster", "Interaction"])
