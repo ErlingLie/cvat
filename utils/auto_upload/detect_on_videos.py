@@ -71,12 +71,14 @@ class VideoDetector():
             self.db[frame_nmbr][class_id] = class_individs.tolist()
 
     def detect_all_frames(self):
-        bbox_predictor = _setup_bbox_predictor()
-        video_cap    = cv2.VideoCapture(self.input)
+        bbox_predictor = self._setup_bbox_predictor()
+        video_cap    = cv2.VideoCapture(self.video_path)
         total_frames = video_cap.get(cv2.CAP_PROP_FRAME_COUNT)
         t0 = time.time()
         i = 0
         ret, frame = video_cap.read()
+        if(not ret):
+            print("Could not read video " + self.video_path)
         while ret:
             t1 = time.time()
             #Produce some nice console output to show progess
@@ -104,7 +106,7 @@ if __name__ == "__main__":
     videos = os.listdir(args.input)
 
     for i, video_path in enumerate(videos):
-        detector = VideoDetector(video_path, args.output, args.model_name, args.num_classes)
-        print(f"Starting detection on video {i}/{len(videos)}: " + video_path)
+        detector = VideoDetector(os.path.join(args.input, video_path), args.output, args.model_name, args.num_classes)
+        print(f"Starting detection on video {i+1}/{len(videos)}: " + video_path)
         detector.detect_all_frames()
         detector.save_detections_to_json()
