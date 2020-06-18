@@ -8,6 +8,7 @@ import os
 import requests
 from io import BytesIO
 import mimetypes
+from time import sleep
 
 from PIL import Image
 
@@ -57,7 +58,8 @@ class CLI():
             response = self.session.get(url)
             response.raise_for_status()
 
-    def tasks_create(self, name, labels, bug, resource_type, resources, **kwargs):
+    def tasks_create(self, name, labels, bug, resource_type, resources,
+                     annotation_path, annotation_format, cooldown_period_in_secs, **kwargs):
         """ Create a new task with the given name and labels JSON and
         add the files to it. """
         url = self.api.tasks
@@ -70,6 +72,12 @@ class CLI():
         response_json = response.json()
         log.info('Created task ID: {id} NAME: {name}'.format(**response_json))
         self.tasks_data(response_json['id'], resource_type, resources)
+        if annotation_path != '':
+            log.info('Waiting {} seconds for job to complete...'.format(cooldown_period_in_secs))
+            sleep(cooldown_period_in_secs)
+            # We have to wait for the job to be created to upload the annotations
+            self.tasks_upload(
+                response_json['id'], annotation_format, annotation_path, **kwargs)
 
     def tasks_delete(self, task_ids, **kwargs):
         """ Delete a list of tasks, ignoring those which don't exist. """
