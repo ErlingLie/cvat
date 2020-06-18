@@ -1,0 +1,6 @@
+*.xml
+*.zip
+output/
+track_output/
+videos/
+.vscode/

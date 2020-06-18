@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": ".env/bin/python",
+    "python.pythonPath": "/usr/bin/python3",
     "eslint.enable": true,
     "eslint.validate": [
         "javascript",
@@ -34,5 +34,7 @@
     ],
     "licenser.license": "Custom",
     "licenser.customHeader": "Copyright (C) @YEAR@ Intel Corporation\n\nSPDX-License-Identifier: MIT",
-    "files.trimTrailingWhitespace": true
+    "files.trimTrailingWhitespace": true,
+    "python.linting.flake8Enabled": false,
+    "python.linting.enabled": true
 }
