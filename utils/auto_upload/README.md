@@ -1,8 +1,8 @@
 # Automatic detection and tracking in videos for upload to CVAT
 
 These tools are made to simplify the process of automatic detection with custom models for CVAT. The tool is divided into a three step process.
-1. Run detection on all videos, and save detections to file.
-2. Run tracking on detection outputs, and save tracks to file.
+1. Run detection on all videos and save detections to file.
+2. Run tracking on detection outputs and save tracks to file.
 3. Produce CVAT xml format annotations from tracking outputs and upload corresponding videos and tracks to CVAT.
 
 The tool works on folders, and it is important that the folders remain unchanged between each step of the process. In other words, do not add videos, remove videos or change video names in the video folder after running the detection script, but before running the upload script. That will lead to mismatch between annotations and videos.
