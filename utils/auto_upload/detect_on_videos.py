@@ -37,6 +37,14 @@ class VideoDetector():
                 str(VideoDetector.count) + ".json")
         VideoDetector.count += 1
         self.db = {}
+        try:
+            with open("label_translation_map.json","r") as json_file:
+                self.translation_map = json.load(json_file)
+                self.translation_map = {int(k) : int(v) for k,v in self.translation_map.items()}
+            print("Using translated label IDs")
+        except:
+            self.translation_map = {i : i for i in range(self.num_classes)}
+            print("Using default label IDs")
 
     def _setup_bbox_predictor(self):
         cfg = get_cfg()
@@ -67,8 +75,9 @@ class VideoDetector():
         classes = output.pred_classes.numpy()
         self.db[frame_nmbr] = {}
         for class_id in range(self.num_classes):
+            new_class_id = self.translation_map[class_id]
             class_individs = arr[classes == class_id]
-            self.db[frame_nmbr][class_id] = class_individs.tolist()
+            self.db[frame_nmbr][new_class_id] = class_individs.tolist()
 
     def detect_all_frames(self):
         bbox_predictor = self._setup_bbox_predictor()
