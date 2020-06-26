@@ -65,7 +65,6 @@ class ProjectSubmission(models.Model):
             # if, for some reason there are multiple entries marked 'is_solution=True'
             # Then this will get the one updated last
             solution = solution.order_by('-timestamp').first()
-            print(self.submission_json)
             map_tot, map_lb = compute_submission_map(self.submission_json, solution.submission_json)
             self.mean_average_precision_leaderboard = map_lb
             self.mean_average_precision_total = map_tot

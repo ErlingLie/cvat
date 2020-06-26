@@ -109,7 +109,7 @@ COPY cvat/requirements/ /tmp/requirements/
 COPY supervisord.conf mod_wsgi.conf wait-for-it.sh manage.py ${HOME}/
 RUN python3 -m pip install --no-cache-dir -r /tmp/requirements/${DJANGO_CONFIGURATION}.txt
 # pycocotools package is impossible to install with its dependencies by one pip install command
-RUN python3 -m pip install --no-cache-dir pycocotools==2.0.0
+# RUN python3 -m pip install --no-cache-dir pycocotools==2.0.0
 
 
 # CUDA support
@@ -151,7 +151,8 @@ COPY tests ${HOME}/tests
 COPY datumaro/ ${HOME}/datumaro
 
 RUN python3 -m pip install --no-cache-dir -r ${HOME}/datumaro/requirements.txt
-RUN pip install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
+RUN python3 -m pip install numpy==1.17.4
+RUN python3 -m pip install 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
 
 # Binary option is necessary to correctly apply the patch on Windows platform.
 # https://unix.stackexchange.com/questions/239364/how-to-fix-hunk-1-failed-at-1-different-line-endings-message
