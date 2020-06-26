@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import models, transaction
 
 
-from .eval_detection_voc import compute_submission_map
+from .eval_detection_coco import compute_submission_map
 from .validators import validate_json_formatted
 
 User = get_user_model()
@@ -65,9 +65,8 @@ class ProjectSubmission(models.Model):
             # if, for some reason there are multiple entries marked 'is_solution=True'
             # Then this will get the one updated last
             solution = solution.order_by('-timestamp').first()
-
-            map_tot, map_lb = compute_submission_map(self.submission_json,
-                                                     solution.submission_json)
+            print(self.submission_json)
+            map_tot, map_lb = compute_submission_map(self.submission_json, solution.submission_json)
             self.mean_average_precision_leaderboard = map_lb
             self.mean_average_precision_total = map_tot
             self.save()

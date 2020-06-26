@@ -96,6 +96,7 @@ INSTALLED_APPS = [
     'cvat.apps.authentication',
     'cvat.apps.documentation',
     'cvat.apps.dataset_manager',
+    'cvat.apps.project_submission',
     'cvat.apps.engine',
     'cvat.apps.git',
     'cvat.apps.restrictions',
@@ -405,6 +406,10 @@ LOGGING = {
 if os.getenv('DJANGO_LOG_SERVER_HOST'):
     LOGGING['loggers']['cvat.server']['handlers'] += ['logstash']
     LOGGING['loggers']['cvat.client']['handlers'] += ['logstash']
+
+
+
+MEDIA_ROOT = DATA_ROOT
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100 MB
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None   # this django check disabled

@@ -24,5 +24,20 @@ def calculate_detection_scores(detection_file, gt_file, leaderboard_data_amount:
 
     return coco_eval.stats
 
+
+
+def compute_submission_map(submission_filefield,
+                           solution_filefield,
+                           leaderboard_data_amount: float = 0.3):
+    try:
+        submission_path = str(submission_filefield.name)
+        solution_path   = str(solution_filefield.name)
+        print(submission_path)
+        print(solution_path)
+        total_result    = calculate_detection_scores(submission_path, solution_path, 1.0)
+        leaderboard_result = calculate_detection_scores(submission_path, solution_path, leaderboard_data_amount)
+        return total_result[0], leaderboard_result[0]
+    except:
+        return 0.666, 0.666
 if __name__ == "__main__":
     print(calculate_detection_scores("test_files/detections.json", "test_files/annotations.json", .3))

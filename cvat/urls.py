@@ -25,6 +25,8 @@ from django.apps import apps
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # tdt 4265 submissions
+    path('submissions/', include('cvat.apps.project_submission.urls')),
     path('', include('cvat.apps.engine.urls')),
     path('django-rq/', include('django_rq.urls')),
     path('auth/', include('cvat.apps.authentication.urls')),
