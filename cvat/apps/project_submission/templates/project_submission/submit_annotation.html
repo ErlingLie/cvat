@@ -1,0 +1,20 @@
+{% extends "project_submission/base.html" %}
+
+{% block body %}
+<div class="cvat-tasks-page container">
+  <div class="container">
+    <hr>
+    <span class="ant-typography cvat-title">
+      <span>Submit annotation</span>
+    </span>
+    <form enctype="multipart/form-data" action="." method="post">
+      {% csrf_token %}
+      <fieldset>
+        {{ form }}
+      </fieldset>
+      <br>
+      <input type="submit" class="ant-btn ant-btn-primary" value="Submit">
+    </form>
+  </div>
+</div>
+{% endblock %} {# body #}

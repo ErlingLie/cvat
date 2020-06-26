@@ -1,0 +1,44 @@
+{% extends "project_submission/base.html" %}
+
+{% block body %}
+<div class="cvat-tasks-page container">
+  <div class="container">
+    <div class="ant-typography p">Only the highest score from a group is shown. The MAP score is based on a subset of the test set, so the score isn't entirely representative for the project results. You can choose to not show your group on the leaderboard.</div>
+    <form action="." method="post">
+      {% csrf_token %}
+      <fieldset>
+        {{ form }}
+      </fieldset>
+      <br>
+      <input type="submit" class="ant-btn ant-btn-primary" value="Save">
+    </form>
+    <hr>
+    <span class="ant-typography cvat-title">Leaderboard</span><br>
+    <span class="ant-typography ">Last update of solution/baselines: <b>{{ most_recent_update }}</b></span>
+  </div>
+  <br>
+  <div id="table-responsive-wrapper" class="table-responsive">
+    <table class="table table-hover table-sm">
+      <thead>
+        <tr>
+          <th><strong class="ant-typography">Rank</strong></th>
+          <th><strong class="ant-typography">Group</strong></th>
+          <th><strong class="ant-typography">MAP Result (30% of Dataset)</strong></th>
+          <th><strong class="ant-typography">MAP Result (Total Dataset)</strong></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users_with_map_annotation %}
+        <tr>
+          {# counter == group rank #}
+          <td><span class="ant-typography">{{ forloop.counter }}</span></td>
+          <td><span class="ant-typography">{{ user }}</span></td>
+          <td><span class="ant-typography">{{ user.map_leaderboard_score }}</span></td>
+          <td><span class="ant-typography">{{ user.map_leaderboard_score_total }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %} {# body #}

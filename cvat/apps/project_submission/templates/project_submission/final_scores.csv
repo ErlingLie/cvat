@@ -1,0 +1,3 @@
+group,final_map,leaderboard_map
+{% for user in users_with_map_annotation %}{{ user}},{{ user.map_final_score }},{{ user.map_leaderboard_score }}
+{% endfor %}
