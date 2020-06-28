@@ -20,7 +20,7 @@ recompute_mean_average_precision.short_description = 'Recompute MAP based on the
 
 class ProjectSubmissionAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'is_solution', 'is_baseline', 'timestamp', 'mean_average_precision_total',  'mean_average_precision_leaderboard',\
-     'ap50_leaderboard', 'ap75_leaderboard', 'aps_leaderboard', 'apm_leaderboard', 'apl_leaderboard']
+     'ap50_leaderboard', 'ap75_leaderboard', 'aps_leaderboard', 'apm_leaderboard', 'apl_leaderboard', 'ap50_total', 'ap75_total']
     readonly_fields = ['timestamp']
     ordering = ['-is_solution', '-is_baseline', '-timestamp']
     actions = [recompute_mean_average_precision]

@@ -68,12 +68,12 @@ class ProjectSubmission(models.Model):
     ap50_total = models.FloatField(
         default=None,
         null=True,
-        verbose_name = "Leaderboard AP 50"
+        verbose_name = "Total AP 50"
     )
     ap75_total = models.FloatField(
         default=None,
         null=True,
-        verbose_name = "Leaderboard AP 75"
+        verbose_name = "Total AP 75"
     )
     is_solution = models.BooleanField(
         default=False,
