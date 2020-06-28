@@ -76,7 +76,8 @@ class Leaderboard(LoginRequiredMixin, View):
                                                =Max('project_submissions__mean_average_precision_leaderboard'))
                                      .annotate(
                                          map_leaderboard_score_total=Max('project_submissions__mean_average_precision_total'))
-                                     .annotate(ap50_leaderboard=Max("project_submissions__ap50_leaderboard"))
+                                     .annotate(ap50_total=Max("project_submissions__ap50_total"))
+                                     .annotate(ap75_total=Max("project_submissions__ap75_total"))
                                      .annotate(most_recent_update                                                           # Their most recent update (only displayed for baseline submissions)
                                                =Max('project_submissions__timestamp'))
                                      ).order_by('-map_leaderboard_score')

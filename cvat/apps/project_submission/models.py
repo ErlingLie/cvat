@@ -65,6 +65,16 @@ class ProjectSubmission(models.Model):
         null=True,
         verbose_name = "Leaderboard AP large"
     )
+    ap50_total = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "Leaderboard AP 50"
+    )
+    ap75_total = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "Leaderboard AP 75"
+    )
     is_solution = models.BooleanField(
         default=False,
     )
@@ -89,6 +99,8 @@ class ProjectSubmission(models.Model):
                 self.aps_leaderboard  = None
                 self.apm_leaderboard  = None
                 self.apl_leaderboard  = None
+                self.ap50_total       = None
+                self.ap75_total       = None
                 self.save()
                 return
 
@@ -103,6 +115,8 @@ class ProjectSubmission(models.Model):
             self.apm_leaderboard  = map_lb[4]
             self.apl_leaderboard  = map_lb[5]
             self.mean_average_precision_total = map_tot[0]
+            self.ap50_total = map_tot[1]
+            self.ap75_total = map_tot[2]
             self.save()
 
     def __str__(self):
