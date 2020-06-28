@@ -6,11 +6,12 @@ from django.core.exceptions import ValidationError
 def validate_json_formatted(filefield):
     try:
         l = json.loads(filefield.read().decode())
-        if not isinstance(l, list):
-            raise ValidationError("The outer JSON type must be a list")
+        expected_fields = set(["image_id", "category_id", "bbox", "score"])
+        if not isinstance(l, list): #Most likely GT solution file
+            l = l["annotations"]
+            expected_fields.remove("score")
         if len(l) == 0:
             raise ValidationError("Empty submission")
-        expected_fields = set(["image_id", "category_id", "bbox", "score"])
         for annotation in l:
             if not isinstance(annotation, dict):
                 raise ValidationError("Invalid annotations JSON: List entries are not dicts")
