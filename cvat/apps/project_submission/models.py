@@ -108,7 +108,7 @@ class ProjectSubmission(models.Model):
     def __str__(self):
         if self.is_solution:
             return 'Solution'
-        return 'Submission ' + str(os.path.basename(self.submission_json.name)) + ' from ' + str(self.user) + ' submitted at ' + str(self.timestamp)
+        return str(os.path.basename(self.submission_json.name)) + ' from ' + str(self.user)
 
 
 
