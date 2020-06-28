@@ -155,7 +155,7 @@ function HeaderContainer(props: Props): JSX.Element {
 
     return (
         <Layout.Header className='cvat-header'>
- <div className='cvat-left-header'>
+            <div className='cvat-left-header'>
                 <Icon className='cvat-logo-icon' component={CVATLogo} />
 
                 <Button
@@ -173,27 +173,21 @@ function HeaderContainer(props: Props): JSX.Element {
                     type='link'
                     value='tasks'
                 >
-                   Download Dataset
+                    <a href="/api/v1/download/0/download">Download Dataset</a>
                 </Button>
                 <Button
                     className='cvat-header-button'
                     type='link'
                     value='tasks'
-                    onClick={
-                        (): void => props.history.push('/submissions/')
-                    }
                 >
-                    Your Submissions
+                    <a href="/submissions/">Your Submissions </a>
                 </Button>
                 <Button
                     className='cvat-header-button'
                     type='link'
                     value='tasks'
-                    onClick={
-                        (): void=> props.history.push('/submissions/leaderboard')
-                    }
                 >
-                    Leaderboard
+                    <a href="/submissions/">Leaderboard</a>
                 </Button>
                 { installedAnalytics
                     && (

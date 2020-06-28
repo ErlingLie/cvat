@@ -11,8 +11,8 @@ def calculate_detection_scores(detection_file, gt_file, leaderboard_data_amount:
         leaderboard_data_amount (float): Amount of total labeled data to use for calculation
         annotation_type (str): Either 'bbox' or 'segm'. Describes what type of task to test.
     '''
-    coco_gt = COCO(gt_file.path)
-    coco_dt = coco_gt.loadRes(detection_file.path)
+    coco_gt = COCO(gt_file)
+    coco_dt = coco_gt.loadRes(detection_file)
     img_ids = sorted(coco_gt.getImgIds())
     img_ids = img_ids[0:int(leaderboard_data_amount*len(img_ids))]
 
@@ -28,9 +28,9 @@ def calculate_detection_scores(detection_file, gt_file, leaderboard_data_amount:
 def compute_submission_map(submission_filefield,
                            solution_filefield,
                            leaderboard_data_amount: float = 0.3):
-    total_result       = calculate_detection_scores(submission_filefield, solution_filefield, 1.0)
-    leaderboard_result = calculate_detection_scores(submission_filefield, solution_filefield, leaderboard_data_amount)
-    return total_result[0], leaderboard_result[0]
+    total_result       = calculate_detection_scores(submission_filefield.path, solution_filefield.path, 1.0)
+    leaderboard_result = calculate_detection_scores(submission_filefield.path, solution_filefield.path, leaderboard_data_amount)
+    return total_result, leaderboard_result
 
 if __name__ == "__main__":
     print(calculate_detection_scores("test_files/detections.json", "test_files/annotations.json", .3))

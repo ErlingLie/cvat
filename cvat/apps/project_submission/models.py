@@ -40,6 +40,31 @@ class ProjectSubmission(models.Model):
         null=True,
         verbose_name="Total MAP"
     )
+    ap50_leaderboard = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "Leaderboard AP50"
+    )
+    ap75_leaderboard = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "Leaderboard AP75"
+    )
+    aps_leaderboard = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "Leaderboard AP small"
+    )
+    apm_leaderboard = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "Leaderboard AP medium"
+    )
+    apl_leaderboard = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "Leaderboard AP large"
+    )
     is_solution = models.BooleanField(
         default=False,
     )
@@ -59,6 +84,11 @@ class ProjectSubmission(models.Model):
             if not solution.exists():
                 self.mean_average_precision_leaderboard = None
                 self.mean_average_precision_total = None
+                self.ap50_leaderboard = None
+                self.ap75_leaderboard = None
+                self.aps_leaderboard  = None
+                self.apm_leaderboard  = None
+                self.apl_leaderboard  = None
                 self.save()
                 return
 
@@ -66,8 +96,13 @@ class ProjectSubmission(models.Model):
             # Then this will get the one updated last
             solution = solution.order_by('-timestamp').first()
             map_tot, map_lb = compute_submission_map(self.submission_json, solution.submission_json)
-            self.mean_average_precision_leaderboard = map_lb
-            self.mean_average_precision_total = map_tot
+            self.mean_average_precision_leaderboard = map_lb[0]
+            self.ap50_leaderboard = map_lb[1]
+            self.ap75_leaderboard = map_lb[2]
+            self.aps_leaderboard  = map_lb[3]
+            self.apm_leaderboard  = map_lb[4]
+            self.apl_leaderboard  = map_lb[5]
+            self.mean_average_precision_total = map_tot[0]
             self.save()
 
     def __str__(self):

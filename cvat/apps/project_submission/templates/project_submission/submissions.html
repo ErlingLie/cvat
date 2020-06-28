@@ -16,15 +16,25 @@
         <tr>
           <th><strong class="ant-typography">Submission</strong></th>
           <th><strong class="ant-typography">Update time</strong></th>
-          <th><strong class="ant-typography">MAP Result</strong></th>
+          <th><strong class="ant-typography">MAP</strong></th>
+          <th><strong class="ant-typography">AP50</strong></th>
+          <th><strong class="ant-typography">AP75</strong></th>
+          <th><strong class="ant-typography">AP Small</strong></th>
+          <th><strong class="ant-typography">AP Medium</strong></th>
+          <th><strong class="ant-typography">AP Large</strong></th>
         </tr>
       </thead>
       <tbody>
         {% for submission in submissions %}
         <tr>
-          <td><span class="ant-typography">{{ submission }}</span></td>
+          <td><span class="ant-typography">{{ submission.submission_json }}</span></td>
           <td><span class="ant-typography">{{ submission.timestamp }}</span></td>
-          <td><span class="ant-typography">{{ submission.mean_average_precision_leaderboard }}</span></td>
+          <td><span class="ant-typography">{{ submission.mean_average_precision_leaderboard | floatformat:3}}</span></td>
+          <td><span class="ant-typography">{{ submission.ap50_leaderboard| floatformat:3 }}</span></td>
+          <td><span class="ant-typography">{{ submission.ap75_leaderboard| floatformat:3 }}</span></td>
+          <td><span class="ant-typography">{{ submission.aps_leaderboard| floatformat:3 }}</span></td>
+          <td><span class="ant-typography">{{ submission.apm_leaderboard | floatformat:3}}</span></td>
+          <td><span class="ant-typography">{{ submission.apl_leaderboard | floatformat:3}}</span></td>
         </tr>
         {% endfor %}
       </tbody>
