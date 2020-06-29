@@ -10,7 +10,7 @@ User = get_user_model()
 class ProjectSubmissionForm(ModelForm):
     class Meta:
         model=ProjectSubmission
-        exclude=["user", "timestamp", "hidden_metrics", "public_metrics",\
+        exclude=["user", "timestamp", \
         #      "mean_average_precision_total", "mean_average_precision_leaderboard", "ap50_leaderboard",\
         # "ap75_leaderboard", "aps_leaderboard", "apm_leaderboard", "apl_leaderboard", "ap50_total", "ap75_total", \
             "is_solution", "is_baseline"]

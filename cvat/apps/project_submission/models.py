@@ -12,6 +12,10 @@ from .validators import validate_json_formatted
 User = get_user_model()
 
 class SubmissionMetrics(models.Model):
+    submission = models.ForeignKey("ProjectSubmission", on_delete=models.CASCADE,
+    default = 1)
+    metric_type = models.CharField(verbose_name="Metric type", max_length=10,
+    default="hidden")
     ap = models.FloatField(
         default=None,
         null=True,
@@ -73,20 +77,7 @@ class ProjectSubmission(models.Model):
         auto_now=True,
         verbose_name="Submission time"
     )
-    hidden_metrics = models.OneToOneField(
-        SubmissionMetrics, on_delete=models.CASCADE,
-        null =True,
-        blank=True,
-        default=1,
-        related_name = "hidden_metrics",
-    )
-    public_metrics = models.OneToOneField(
-        SubmissionMetrics, on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        default=1,
-        related_name="public_metrics"
-    )
+
     is_solution = models.BooleanField(
         default=False,
     )
@@ -95,7 +86,7 @@ class ProjectSubmission(models.Model):
     )
 
     class Meta:
-        ordering = ["-public_metrics__ap"]
+        ordering = ["id"]
         verbose_name = "Project Submission"
         verbose_name_plural = "Project Submissions"
 
@@ -103,20 +94,19 @@ class ProjectSubmission(models.Model):
     def update_mean_average_precision(self):
         with transaction.atomic():
             solution = ProjectSubmission.objects.filter(is_solution=True)
-            self.hidden_metrics = SubmissionMetrics()
-            self.public_metrics = SubmissionMetrics()
             if not solution.exists():
-                self.hidden_metrics.update_metrics([None for i in range(12)])
-                self.public_metrics.update_metrics([None for i in range(12)])
                 self.save()
                 return
-
+            if self.is_solution:
+                self.save()
+                return
             # if, for some reason there are multiple entries marked 'is_solution=True'
             # Then this will get the one updated last
             solution = solution.order_by('-timestamp').first()
             map_tot, map_lb = compute_submission_map(self.submission_json, solution.submission_json)
-            self.public_metrics.update_metrics(map_lb)
-            self.hidden_metrics.update_metrics(map_tot)
+
+            self.submissionmetrics_set.filter(metric_type = "hidden")[0].update_metrics(map_tot)
+            self.submissionmetrics_set.filter(metric_type = "public")[0].update_metrics(map_lb)
             self.save()
 
     def __str__(self):
