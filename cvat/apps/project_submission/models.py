@@ -11,8 +11,51 @@ from .validators import validate_json_formatted
 
 User = get_user_model()
 
+class SubmissionMetrics(models.Model):
+    ap = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "AP"
+    )
+    ap50 = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "AP50"
+    )
+    ap75 = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "AP75"
+    )
+    aps = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "AP small"
+    )
+    apm = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "AP medium"
+    )
+    apl = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "AP large"
+    )
+
+    def update_metrics(self, ap_array):
+        self.ap   = ap_array[0]
+        self.ap50 = ap_array[1]
+        self.ap75 = ap_array[2]
+        self.aps  = ap_array[3]
+        self.apm  = ap_array[4]
+        self.apl  = ap_array[5]
+        self.save()
+
+
 
 class ProjectSubmission(models.Model):
+    id = models.AutoField(primary_key=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -30,50 +73,19 @@ class ProjectSubmission(models.Model):
         auto_now=True,
         verbose_name="Submission time"
     )
-    mean_average_precision_leaderboard = models.FloatField(
-        default=None,
-        null=True,
-        verbose_name="Leaderboard MAP"
+    hidden_metrics = models.OneToOneField(
+        SubmissionMetrics, on_delete=models.CASCADE,
+        null =True,
+        blank=True,
+        default=1,
+        related_name = "hidden_metrics",
     )
-    mean_average_precision_total = models.FloatField(
-        default=None,
+    public_metrics = models.OneToOneField(
+        SubmissionMetrics, on_delete=models.CASCADE,
         null=True,
-        verbose_name="Total MAP"
-    )
-    ap50_leaderboard = models.FloatField(
-        default=None,
-        null=True,
-        verbose_name = "Leaderboard AP50"
-    )
-    ap75_leaderboard = models.FloatField(
-        default=None,
-        null=True,
-        verbose_name = "Leaderboard AP75"
-    )
-    aps_leaderboard = models.FloatField(
-        default=None,
-        null=True,
-        verbose_name = "Leaderboard AP small"
-    )
-    apm_leaderboard = models.FloatField(
-        default=None,
-        null=True,
-        verbose_name = "Leaderboard AP medium"
-    )
-    apl_leaderboard = models.FloatField(
-        default=None,
-        null=True,
-        verbose_name = "Leaderboard AP large"
-    )
-    ap50_total = models.FloatField(
-        default=None,
-        null=True,
-        verbose_name = "Total AP 50"
-    )
-    ap75_total = models.FloatField(
-        default=None,
-        null=True,
-        verbose_name = "Total AP 75"
+        blank=True,
+        default=1,
+        related_name="public_metrics"
     )
     is_solution = models.BooleanField(
         default=False,
@@ -83,7 +95,7 @@ class ProjectSubmission(models.Model):
     )
 
     class Meta:
-        ordering = ["-mean_average_precision_leaderboard", "id"]
+        ordering = ["-public_metrics__ap"]
         verbose_name = "Project Submission"
         verbose_name_plural = "Project Submissions"
 
@@ -91,16 +103,11 @@ class ProjectSubmission(models.Model):
     def update_mean_average_precision(self):
         with transaction.atomic():
             solution = ProjectSubmission.objects.filter(is_solution=True)
+            self.hidden_metrics = SubmissionMetrics()
+            self.public_metrics = SubmissionMetrics()
             if not solution.exists():
-                self.mean_average_precision_leaderboard = None
-                self.mean_average_precision_total = None
-                self.ap50_leaderboard = None
-                self.ap75_leaderboard = None
-                self.aps_leaderboard  = None
-                self.apm_leaderboard  = None
-                self.apl_leaderboard  = None
-                self.ap50_total       = None
-                self.ap75_total       = None
+                self.hidden_metrics.update_metrics([None for i in range(12)])
+                self.public_metrics.update_metrics([None for i in range(12)])
                 self.save()
                 return
 
@@ -108,15 +115,8 @@ class ProjectSubmission(models.Model):
             # Then this will get the one updated last
             solution = solution.order_by('-timestamp').first()
             map_tot, map_lb = compute_submission_map(self.submission_json, solution.submission_json)
-            self.mean_average_precision_leaderboard = map_lb[0]
-            self.ap50_leaderboard = map_lb[1]
-            self.ap75_leaderboard = map_lb[2]
-            self.aps_leaderboard  = map_lb[3]
-            self.apm_leaderboard  = map_lb[4]
-            self.apl_leaderboard  = map_lb[5]
-            self.mean_average_precision_total = map_tot[0]
-            self.ap50_total = map_tot[1]
-            self.ap75_total = map_tot[2]
+            self.public_metrics.update_metrics(map_lb)
+            self.hidden_metrics.update_metrics(map_tot)
             self.save()
 
     def __str__(self):

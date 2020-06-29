@@ -69,20 +69,18 @@ class Leaderboard(LoginRequiredMixin, View):
     def get(self, request):
         submissions = ProjectSubmission.objects.filter(is_solution=False)
         users_to_show_on_leaderboard = User.objects.filter(id__in=submissions.values('user__id')).select_related('leaderboard_settings').filter(leaderboard_settings__show_on_leaderboard=True)
-
         users_with_map_annotation = (users_to_show_on_leaderboard
                                      .prefetch_related('project_submissions')                                               # In order to refer to a user's project_submissions
                                      .annotate(map_leaderboard_score                                                        # Their best score
-                                               =Max('project_submissions__mean_average_precision_leaderboard'))
+                                               =Max('project_submissions__public_metrics__ap'))
                                      .annotate(
-                                         map_leaderboard_score_total=Max('project_submissions__mean_average_precision_total'))
-                                     .annotate(ap50_total=Max("project_submissions__ap50_total"))
-                                     .annotate(ap75_total=Max("project_submissions__ap75_total"))
+                                         map_leaderboard_score_total=Max('project_submissions__hidden_metrics_ap'))
+                                     .annotate(ap50_total=Max("project_submissions__hidden_metrics__ap50"))
+                                     .annotate(ap75_total=Max("project_submissions__hidden_metrics__ap75"))
                                      .annotate(most_recent_update                                                           # Their most recent update (only displayed for baseline submissions)
                                                =Max('project_submissions__timestamp'))
                                      ).order_by('-map_leaderboard_score')
         # this is terrible code but it solves the issue of only showing updates for baseline users
-
         baselines_and_solutions =  ProjectSubmission.objects.filter(Q(is_baseline=True) | Q(is_solution=True)).order_by('-timestamp')
         most_recent_update = 'Never'
         if baselines_and_solutions.exists():
