@@ -47,13 +47,50 @@ class SubmissionMetrics(models.Model):
         verbose_name = "AP large"
     )
 
+    ar1 = models.FloatField(
+        default = None,
+        null= True,
+        verbose_name= "AR 1"
+    )
+    ar10 = models.FloatField(
+        default = None,
+        null= True,
+        verbose_name= "AR 10"
+    )
+    ar100 = models.FloatField(
+        default = None,
+        null= True,
+        verbose_name= "AR 100"
+    )
+    ars = models.FloatField(
+        default = None,
+        null= True,
+        verbose_name= "AR small"
+    )
+    arm = models.FloatField(
+        default = None,
+        null= True,
+        verbose_name= "AR Medium"
+    )
+    arl = models.FloatField(
+        default = None,
+        null= True,
+        verbose_name= "AR Large"
+    )
+
     def update_metrics(self, ap_array):
-        self.ap   = ap_array[0]
-        self.ap50 = ap_array[1]
-        self.ap75 = ap_array[2]
-        self.aps  = ap_array[3]
-        self.apm  = ap_array[4]
-        self.apl  = ap_array[5]
+        self.ap    = ap_array[0]
+        self.ap50  = ap_array[1]
+        self.ap75  = ap_array[2]
+        self.aps   = ap_array[3]
+        self.apm   = ap_array[4]
+        self.apl   = ap_array[5]
+        self.ar1   = ap_array[6]
+        self.ar10  = ap_array[7]
+        self.ar100 = ap_array[8]
+        self.ars   = ap_array[9]
+        self.arm   = ap_array[10]
+        self.arl   = ap_array[11]
         self.save()
 
 
