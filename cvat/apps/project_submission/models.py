@@ -30,37 +30,37 @@ class ProjectSubmission(models.Model):
         auto_now=True,
         verbose_name="Submission time"
     )
-    mean_average_precision_leaderboard = models.FloatField(
+    ap_lb = models.FloatField(
         default=None,
         null=True,
         verbose_name="Leaderboard MAP"
     )
-    mean_average_precision_total = models.FloatField(
+    ap_total = models.FloatField(
         default=None,
         null=True,
         verbose_name="Total MAP"
     )
-    ap50_leaderboard = models.FloatField(
+    ap50_lb = models.FloatField(
         default=None,
         null=True,
         verbose_name = "Leaderboard AP50"
     )
-    ap75_leaderboard = models.FloatField(
+    ap75_lb = models.FloatField(
         default=None,
         null=True,
         verbose_name = "Leaderboard AP75"
     )
-    aps_leaderboard = models.FloatField(
+    aps_lb= models.FloatField(
         default=None,
         null=True,
         verbose_name = "Leaderboard AP small"
     )
-    apm_leaderboard = models.FloatField(
+    apm_lb = models.FloatField(
         default=None,
         null=True,
         verbose_name = "Leaderboard AP medium"
     )
-    apl_leaderboard = models.FloatField(
+    apl_lb = models.FloatField(
         default=None,
         null=True,
         verbose_name = "Leaderboard AP large"
@@ -75,6 +75,21 @@ class ProjectSubmission(models.Model):
         null=True,
         verbose_name = "Total AP 75"
     )
+    aps_total = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "Total AP 75"
+    )
+    apm_total = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "Total AP 75"
+    )
+    apl_total = models.FloatField(
+        default=None,
+        null=True,
+        verbose_name = "Total AP 75"
+    )
     is_solution = models.BooleanField(
         default=False,
     )
@@ -83,24 +98,30 @@ class ProjectSubmission(models.Model):
     )
 
     class Meta:
-        ordering = ["-mean_average_precision_leaderboard", "id"]
+        ordering = ["-ap_lb", "id"]
         verbose_name = "Project Submission"
         verbose_name_plural = "Project Submissions"
 
+
+    def update_metrics(self, lb, tot):
+        self.ap_lb      = lb[0]
+        self.ap50_lb    = lb[1]
+        self.ap75_lb    = lb[2]
+        self.aps_lb     = lb[3]
+        self.apm_lb     = lb[4]
+        self.apl_lb     = lb[5]
+        self.ap_total   = tot[0]
+        self.ap50_total = tot[1]
+        self.ap75_total = tot[2]
+        self.aps_total  = tot[3]
+        self.apm_total  = tot[4]
+        self.apl_total  = tot[5]
 
     def update_mean_average_precision(self):
         with transaction.atomic():
             solution = ProjectSubmission.objects.filter(is_solution=True)
             if not solution.exists():
-                self.mean_average_precision_leaderboard = None
-                self.mean_average_precision_total = None
-                self.ap50_leaderboard = None
-                self.ap75_leaderboard = None
-                self.aps_leaderboard  = None
-                self.apm_leaderboard  = None
-                self.apl_leaderboard  = None
-                self.ap50_total       = None
-                self.ap75_total       = None
+                self.update_metrics([None for i in range(6)], [None for i in range(6)])
                 self.save()
                 return
 
@@ -108,15 +129,7 @@ class ProjectSubmission(models.Model):
             # Then this will get the one updated last
             solution = solution.order_by('-timestamp').first()
             map_tot, map_lb = compute_submission_map(self.submission_json, solution.submission_json)
-            self.mean_average_precision_leaderboard = map_lb[0]
-            self.ap50_leaderboard = map_lb[1]
-            self.ap75_leaderboard = map_lb[2]
-            self.aps_leaderboard  = map_lb[3]
-            self.apm_leaderboard  = map_lb[4]
-            self.apl_leaderboard  = map_lb[5]
-            self.mean_average_precision_total = map_tot[0]
-            self.ap50_total = map_tot[1]
-            self.ap75_total = map_tot[2]
+            self.update_metrics(map_lb, map_tot)
             self.save()
 
     def __str__(self):

@@ -29,12 +29,12 @@
         <tr>
           <td><span class="ant-typography">{{ submission.submission_json.name }}</span></td>
           <td><span class="ant-typography">{{ submission.timestamp }}</span></td>
-          <td><span class="ant-typography">{{ submission.mean_average_precision_leaderboard | floatformat:3}}</span></td>
-          <td><span class="ant-typography">{{ submission.ap50_leaderboard| floatformat:3 }}</span></td>
-          <td><span class="ant-typography">{{ submission.ap75_leaderboard| floatformat:3 }}</span></td>
-          <td><span class="ant-typography">{{ submission.aps_leaderboard| floatformat:3 }}</span></td>
-          <td><span class="ant-typography">{{ submission.apm_leaderboard | floatformat:3}}</span></td>
-          <td><span class="ant-typography">{{ submission.apl_leaderboard | floatformat:3}}</span></td>
+          <td><span class="ant-typography">{{ submission.ap_lb | floatformat:3}}</span></td>
+          <td><span class="ant-typography">{{ submission.ap50_lb| floatformat:3 }}</span></td>
+          <td><span class="ant-typography">{{ submission.ap75_lb| floatformat:3 }}</span></td>
+          <td><span class="ant-typography">{{ submission.aps_lb |floatformat:3 }}</span></td>
+          <td><span class="ant-typography">{{ submission.apm_lb | floatformat:3}}</span></td>
+          <td><span class="ant-typography">{{ submission.apl_lb | floatformat:3}}</span></td>
         </tr>
         {% endfor %}
       </tbody>

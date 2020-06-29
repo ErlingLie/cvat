@@ -27,6 +27,9 @@
           <th><strong class="ant-typography">AP Full</strong></th>
           <th><strong class="ant-typography">AP 50</strong></th>
           <th><strong class="ant-typography">AP 75</strong></th>
+          <th><strong class="ant-typography">AP Small</strong></th>
+          <th><strong class="ant-typography">AP Medium</strong></th>
+          <th><strong class="ant-typography">AP Large</strong></th>
         </tr>
       </thead>
       <tbody>
@@ -39,6 +42,9 @@
           <td><span class="ant-typography">{{ user.map_leaderboard_score_total | floatformat:3 }}</span></td>
           <td><span class="ant-typography">{{ user.ap50_total | floatformat:3}}</span></td>
           <td><span class="ant-typography">{{ user.ap75_total | floatformat:3 }}</span></td>
+          <td><span class="ant-typography">{{ user.aps_total | floatformat:3 }}</span></td>
+          <td><span class="ant-typography">{{ user.apm_total | floatformat:3 }}</span></td>
+          <td><span class="ant-typography">{{ user.apl_total | floatformat:3 }}</span></td>
         </tr>
         {% endfor %}
       </tbody>
