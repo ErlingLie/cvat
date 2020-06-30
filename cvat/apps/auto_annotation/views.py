@@ -23,6 +23,9 @@ from .models import AnnotationModel
 @login_required
 @permission_required(perm=["engine.task.change"],
     fn=objectgetter(TaskModel, "tid"), raise_exception=True)
+@permission_required(perm=["auto_annotation.model.access"],
+    fn=objectgetter(AnnotationModel, "mid"), raise_exception=True)
+@permission_required(perm=["engine.role.admin"], raise_exception=True)
 def cancel(request, tid):
     try:
         queue = django_rq.get_queue("low")
@@ -44,6 +47,7 @@ def cancel(request, tid):
 
 @login_required
 @permission_required(perm=["auto_annotation.model.create"], raise_exception=True)
+@permission_required(perm=["engine.role.admin"], raise_exception=True)
 def create_model(request):
     if request.method != 'POST':
         return HttpResponseBadRequest("Only POST requests are accepted")
@@ -82,6 +86,7 @@ def create_model(request):
 @login_required
 @permission_required(perm=["auto_annotation.model.update"],
     fn=objectgetter(AnnotationModel, "mid"), raise_exception=True)
+@permission_required(perm=["engine.role.admin"], raise_exception=True)
 def update_model(request, mid):
     if request.method != 'POST':
         return HttpResponseBadRequest("Only POST requests are accepted")
@@ -119,6 +124,7 @@ def update_model(request, mid):
 @login_required
 @permission_required(perm=["auto_annotation.model.delete"],
     fn=objectgetter(AnnotationModel, "mid"), raise_exception=True)
+@permission_required(perm=["engine.role.admin"], raise_exception=True)
 def delete_model(request, mid):
     if request.method != 'DELETE':
         return HttpResponseBadRequest("Only DELETE requests are accepted")
@@ -167,10 +173,9 @@ def get_meta_info(request):
         return HttpResponseBadRequest(str(e))
 
 @login_required
-@permission_required(perm=["engine.task.change"],
-    fn=objectgetter(TaskModel, "tid"), raise_exception=True)
 @permission_required(perm=["auto_annotation.model.access"],
     fn=objectgetter(AnnotationModel, "mid"), raise_exception=True)
+@permission_required(perm=["engine.role.admin"], raise_exception=True)
 def start_annotation(request, mid, tid):
     slogger.glob.info("auto annotation create request for task {} via DL model {}".format(tid, mid))
     try:

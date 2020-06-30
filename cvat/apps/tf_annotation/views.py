@@ -236,6 +236,7 @@ def get_meta_info(request):
 @login_required
 @permission_required(perm=['engine.task.change'],
     fn=objectgetter(TaskModel, 'tid'), raise_exception=True)
+@permission_required(perm=["engine.role.admin"], raise_exception=True)
 def create(request, tid):
     slogger.glob.info('tf annotation create request for task {}'.format(tid))
     try:
@@ -326,6 +327,7 @@ def check(request, tid):
 @login_required
 @permission_required(perm=['engine.task.change'],
     fn=objectgetter(TaskModel, 'tid'), raise_exception=True)
+@permission_required(perm=["engine.role.admin"], raise_exception=True)
 def cancel(request, tid):
     try:
         queue = django_rq.get_queue('low')

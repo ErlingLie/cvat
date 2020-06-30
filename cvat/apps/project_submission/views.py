@@ -73,11 +73,14 @@ class Leaderboard(LoginRequiredMixin, View):
         users_to_show_on_leaderboard = User.objects.filter(id__in=submissions.values('user__id')).select_related('leaderboard_settings').filter(leaderboard_settings__show_on_leaderboard=True)
         users_with_map_annotation = (users_to_show_on_leaderboard
                                      .prefetch_related('project_submissions')                                               # In order to refer to a user's project_submissions
-                                      .annotate(map_leaderboard_score = Max("project_submissions__submissionmetrics__ap", filter = Q(project_submissions__submissionmetrics__metric_type = "public")) )           # Their best score
-                                     .annotate(
-                                         map_leaderboard_score_total=Max('project_submissions__submissionmetrics__ap', filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
-                                     .annotate(ap50_total=Max("project_submissions__submissionmetrics__ap50", filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
-                                     .annotate(ap75_total=Max("project_submissions__submissionmetrics__ap75", filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
+                                      .annotate(map_leaderboard_score = Max("project_submissions__submissionmetrics__ap",
+                                       filter = Q(project_submissions__submissionmetrics__metric_type = "public")) )           # Their best score
+                                     .annotate(map_leaderboard_score_total=Max('project_submissions__submissionmetrics__ap', 
+                                       filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
+                                     .annotate(ap50_total=Max("project_submissions__submissionmetrics__ap50", 
+                                       filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
+                                     .annotate(ap75_total=Max("project_submissions__submissionmetrics__ap75", 
+                                       filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
                                      .annotate(most_recent_update                                                           # Their most recent update (only displayed for baseline submissions)
                                                =Max('project_submissions__timestamp'))
                                      ).order_by('-map_leaderboard_score')

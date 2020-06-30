@@ -114,12 +114,23 @@ def is_job_owner(db_user, db_job):
 @rules.predicate
 def is_job_annotator(db_user, db_job):
     db_task = db_job.segment.task
-    # A job can be annotated by any user if the task's assignee is None.
-    has_rights = (db_task.assignee is None and not settings.RESTRICTIONS['reduce_task_visibility']) or is_task_assignee(db_user, db_task)
-    if db_job.assignee is not None:
-        has_rights |= (db_user == db_job.assignee)
+    # # A job can be annotated by any user if the task's assignee is None.
+    # has_rights = (db_task.assignee is None and not settings.RESTRICTIONS['reduce_task_visibility']) or is_task_assignee(db_user, db_task)
+    #Can only edit job if task assignee
+    if db_task.assignee is not None:
+        return db_user == db_task.assignee
 
-    return has_rights
+@rules.predicate
+def has_task_no_assignee(db_user, db_task):
+    return db_task.assignee_id is None
+
+
+@rules.predicate
+def can_edit_job(db_user, db_job):
+    db_task = db_job.segment.task
+    if db_task.assignee is None:
+        return False
+    return db_user == db_task.assignee
 
 # AUTH PERMISSIONS RULES
 rules.add_perm('engine.role.user', has_user_role)
@@ -127,24 +138,21 @@ rules.add_perm('engine.role.admin', has_admin_role)
 rules.add_perm('engine.role.annotator', has_annotator_role)
 rules.add_perm('engine.role.observer', has_observer_role)
 
-rules.add_perm('engine.project.create', has_admin_role | has_user_role)
+rules.add_perm('engine.project.create', has_admin_role)
 rules.add_perm('engine.project.access', has_admin_role | has_observer_role |
     is_project_owner | is_project_annotator)
 rules.add_perm('engine.project.change', has_admin_role | is_project_owner |
     is_project_assignee)
 rules.add_perm('engine.project.delete', has_admin_role | is_project_owner)
 
-rules.add_perm('engine.task.create', has_admin_role | has_user_role)
+rules.add_perm('engine.task.create', has_admin_role)
 rules.add_perm('engine.task.access', has_admin_role | has_observer_role |
     is_task_owner | is_task_annotator)
-rules.add_perm('engine.task.change', has_admin_role | is_task_owner |
-    is_task_assignee)
-rules.add_perm('engine.task.delete', has_admin_role | is_task_owner)
+rules.add_perm('engine.task.change', has_admin_role | has_task_no_assignee)
+rules.add_perm('engine.task.delete', has_admin_role )
 
-rules.add_perm('engine.job.access', has_admin_role | has_observer_role |
-    is_job_owner | is_job_annotator)
-rules.add_perm('engine.job.change', has_admin_role | is_job_owner |
-    is_job_annotator)
+rules.add_perm('engine.job.access', has_admin_role | is_job_annotator)
+rules.add_perm('engine.job.change', has_admin_role | can_edit_job)
 
 class AdminRolePermission(BasePermission):
     # pylint: disable=no-self-use
@@ -214,12 +222,7 @@ def filter_task_queryset(queryset, user):
     if has_admin_role(user) or has_observer_role(user):
         return queryset
 
-    query_filter = Q(owner=user) | Q(assignee=user) | \
-        Q(segment__job__assignee=user)
-    if not settings.RESTRICTIONS['reduce_task_visibility']:
-        query_filter |= Q(assignee=None)
-
-    return queryset.filter(query_filter).distinct()
+    return queryset.filter(Q(assignee=user) | Q(assignee=None)).distinct()
 
 class TaskGetQuerySetMixin(object):
     def get_queryset(self):
