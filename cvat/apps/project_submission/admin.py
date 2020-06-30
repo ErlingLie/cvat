@@ -27,17 +27,15 @@ class ProjectSubmissionAdmin(admin.ModelAdmin):
     actions = [recompute_mean_average_precision]
 
     def get_ap(self, obj):
-        try:
-            return obj.submissionmetrics_set.filter(metric_type = "hidden")[0].ap
-        except:
+        if obj.hidden_submission is None:
             return 0
+        return obj.hidden_submission.ap
     get_ap.admin_order_field  = 'ap-hidden'  #Allows column order sorting
     get_ap.short_description = 'AP Full'  #Renames column head
     def get_ap_public(self, obj):
-        try:
-            return obj.submissionmetrics_set.filter(metric_type = "public")[0].ap
-        except:
+        if obj.public_submission is None:
             return 0
+        return obj.public_submission
     get_ap_public.admin_order_field  = 'ap-public'  #Allows column order sorting
     get_ap_public.short_description = 'AP 30 %'  #Renames column head
 
