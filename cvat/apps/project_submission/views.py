@@ -1,7 +1,7 @@
 import logging
 
 
-from django.db.models import Max, Q
+from django.db.models import Max, Q, F
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
@@ -10,7 +10,7 @@ from django.conf import settings
 from django.views import View
 from django.template import loader
 
-from .models import ProjectSubmission, LeaderboardSettings
+from .models import ProjectSubmission, LeaderboardSettings, SubmissionMetrics
 from .forms import ProjectSubmissionForm, LeaderboardSettingsForm
 
 User = get_user_model()
@@ -43,6 +43,8 @@ class SubmitAnnotation(LoginRequiredMixin, View):
             submission.user = request.user
             submission.is_solution = False
             submission.save()
+            hidden = submission.submissionmetrics_set.create(metric_type = "hidden", ap = 0, ap50 = 0, ap75 = 0, aps = 0, apm = 0, apl = 0)
+            public = submission.submissionmetrics_set.create(metric_type = "public", ap = 0, ap50 = 0, ap75 = 0, aps = 0, apm = 0, apl = 0)
             # I think this has to be done after save() to ensure that
             # The filefield we try to read has actually been created
             # (But I haven't checked)
@@ -55,10 +57,10 @@ class SubmitAnnotation(LoginRequiredMixin, View):
 
 class Submissions(LoginRequiredMixin, View):
     template = 'project_submission/submissions.html'
-
     def get(self, request):
+        submissions = SubmissionMetrics.objects.filter(Q(submission__user=request.user)&Q(metric_type = "public"))
         return render(request, self.template, {
-            'submissions': ProjectSubmission.objects.filter(user=request.user),
+            'submissions': submissions,
         })
 
 
@@ -69,23 +71,20 @@ class Leaderboard(LoginRequiredMixin, View):
     def get(self, request):
         submissions = ProjectSubmission.objects.filter(is_solution=False)
         users_to_show_on_leaderboard = User.objects.filter(id__in=submissions.values('user__id')).select_related('leaderboard_settings').filter(leaderboard_settings__show_on_leaderboard=True)
-
         users_with_map_annotation = (users_to_show_on_leaderboard
                                      .prefetch_related('project_submissions')                                               # In order to refer to a user's project_submissions
-                                     .annotate(map_leaderboard_score                                                        # Their best score
-                                               =Max('project_submissions__ap_lb'))
-                                     .annotate(
-                                         map_leaderboard_score_total=Max('project_submissions__ap_total'))
-                                     .annotate(ap50_total=Max("project_submissions__ap50_total"))
-                                     .annotate(ap75_total=Max("project_submissions__ap75_total"))
-                                     .annotate(aps_total=Max("project_submissions__aps_total"))
-                                     .annotate(apm_total=Max("project_submissions__apm_total"))
-                                     .annotate(apl_total=Max("project_submissions__apl_total"))
+                                      .annotate(map_leaderboard_score = Max("project_submissions__submissionmetrics__ap",
+                                       filter = Q(project_submissions__submissionmetrics__metric_type = "public")) )           # Their best score
+                                     .annotate(map_leaderboard_score_total=Max('project_submissions__submissionmetrics__ap', 
+                                       filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
+                                     .annotate(ap50_total=Max("project_submissions__submissionmetrics__ap50", 
+                                       filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
+                                     .annotate(ap75_total=Max("project_submissions__submissionmetrics__ap75", 
+                                       filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
                                      .annotate(most_recent_update                                                           # Their most recent update (only displayed for baseline submissions)
                                                =Max('project_submissions__timestamp'))
                                      ).order_by('-map_leaderboard_score')
         # this is terrible code but it solves the issue of only showing updates for baseline users
-
         baselines_and_solutions =  ProjectSubmission.objects.filter(Q(is_baseline=True) | Q(is_solution=True)).order_by('-timestamp')
         most_recent_update = 'Never'
         if baselines_and_solutions.exists():
