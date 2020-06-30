@@ -19,7 +19,7 @@ def is_primary_model(_, db_dl_model):
     return db_dl_model.primary
 
 def setup_permissions():
-    rules.add_perm('auto_annotation.model.create', has_admin_role | has_user_role)
+    rules.add_perm('auto_annotation.model.create', has_admin_role)
 
     rules.add_perm('auto_annotation.model.update', (has_admin_role | is_model_owner) & ~is_primary_model)
 
