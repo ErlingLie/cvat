@@ -142,29 +142,15 @@ class ProjectSubmission(models.Model):
         return metrics[0]
 
 
-    def update_metrics(self, lb, tot):
-        self.ap_lb      = lb[0]
-        self.ap50_lb    = lb[1]
-        self.ap75_lb    = lb[2]
-        self.aps_lb     = lb[3]
-        self.apm_lb     = lb[4]
-        self.apl_lb     = lb[5]
-        self.ap_total   = tot[0]
-        self.ap50_total = tot[1]
-        self.ap75_total = tot[2]
-        self.aps_total  = tot[3]
-        self.apm_total  = tot[4]
-        self.apl_total  = tot[5]
-
     def update_mean_average_precision(self):
         with transaction.atomic():
             solution = ProjectSubmission.objects.filter(is_solution=True)
-            if not solution.exists():
+            if not solution.exists() or self.is_solution:
                 self.save()
                 return
-            if self.is_solution:
-                self.save()
-                return
+            elif self.hidden_submission == None and self.public_submission == None:
+                self.submissionmetrics_set.create(metric_type = "hidden", ap = 0, ap50 = 0, ap75 = 0, aps = 0, apm = 0, apl = 0)
+                self.submissionmetrics_set.create(metric_type = "public", ap = 0, ap50 = 0, ap75 = 0, aps = 0, apm = 0, apl = 0)
             # if, for some reason there are multiple entries marked 'is_solution=True'
             # Then this will get the one updated last
             solution = solution.order_by('-timestamp').first()

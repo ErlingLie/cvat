@@ -43,8 +43,8 @@ class SubmitAnnotation(LoginRequiredMixin, View):
             submission.user = request.user
             submission.is_solution = False
             submission.save()
-            hidden = submission.submissionmetrics_set.create(metric_type = "hidden", ap = 0, ap50 = 0, ap75 = 0, aps = 0, apm = 0, apl = 0)
-            public = submission.submissionmetrics_set.create(metric_type = "public", ap = 0, ap50 = 0, ap75 = 0, aps = 0, apm = 0, apl = 0)
+            submission.submissionmetrics_set.create(metric_type = "hidden", ap = 0, ap50 = 0, ap75 = 0, aps = 0, apm = 0, apl = 0)
+            submission.submissionmetrics_set.create(metric_type = "public", ap = 0, ap50 = 0, ap75 = 0, aps = 0, apm = 0, apl = 0)
             # I think this has to be done after save() to ensure that
             # The filefield we try to read has actually been created
             # (But I haven't checked)
@@ -75,11 +75,17 @@ class Leaderboard(LoginRequiredMixin, View):
                                      .prefetch_related('project_submissions')                                               # In order to refer to a user's project_submissions
                                       .annotate(map_leaderboard_score = Max("project_submissions__submissionmetrics__ap",
                                        filter = Q(project_submissions__submissionmetrics__metric_type = "public")) )           # Their best score
-                                     .annotate(map_leaderboard_score_total=Max('project_submissions__submissionmetrics__ap', 
+                                     .annotate(map_leaderboard_score_total=Max('project_submissions__submissionmetrics__ap',
                                        filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
-                                     .annotate(ap50_total=Max("project_submissions__submissionmetrics__ap50", 
+                                     .annotate(ap50_total=Max("project_submissions__submissionmetrics__ap50",
                                        filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
-                                     .annotate(ap75_total=Max("project_submissions__submissionmetrics__ap75", 
+                                     .annotate(ap75_total=Max("project_submissions__submissionmetrics__ap75",
+                                       filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
+                                     .annotate(aps_total=Max("project_submissions__submissionmetrics__aps",
+                                       filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
+                                     .annotate(apm_total=Max("project_submissions__submissionmetrics__apm",
+                                       filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
+                                     .annotate(apl_total=Max("project_submissions__submissionmetrics__apl",
                                        filter = Q(project_submissions__submissionmetrics__metric_type = "hidden")))
                                      .annotate(most_recent_update                                                           # Their most recent update (only displayed for baseline submissions)
                                                =Max('project_submissions__timestamp'))

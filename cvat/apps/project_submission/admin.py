@@ -33,7 +33,7 @@ class ProjectSubmissionAdmin(admin.ModelAdmin):
     def get_ap_public(self, obj):
         if obj.public_submission is None:
             return 0
-        return obj.public_submission
+        return obj.public_submission.ap
     get_ap_public.admin_order_field  = 'ap-public'  #Allows column order sorting
     get_ap_public.short_description = 'AP 30 %'  #Renames column head
 
