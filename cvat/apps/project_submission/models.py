@@ -127,6 +127,22 @@ class ProjectSubmission(models.Model):
         verbose_name = "Project Submission"
         verbose_name_plural = "Project Submissions"
 
+    @property
+    def hidden_submission(self):
+        metrics = self.submissionmetrics_set.filter(metric_type="hidden")
+        if len(metrics) == 0:
+            return None
+        assert len(metrics) == 1
+        return metrics[0]
+
+    @property
+    def public_submission(self):
+        metrics = self.submissionmetrics_set.filter(metric_type="public")
+        if len(metrics) == 0:
+            return None
+        assert len(metrics) == 1
+        return metrics[0]
+
 
     def update_mean_average_precision(self):
         with transaction.atomic():
@@ -142,8 +158,8 @@ class ProjectSubmission(models.Model):
             solution = solution.order_by('-timestamp').first()
             map_tot, map_lb = compute_submission_map(self.submission_json, solution.submission_json)
 
-            self.submissionmetrics_set.filter(metric_type = "hidden")[0].update_metrics(map_tot)
-            self.submissionmetrics_set.filter(metric_type = "public")[0].update_metrics(map_lb)
+            self.hidden_submission.update_metrics(map_tot)
+            self.public_submission.update_metrics(map_lb)
             self.save()
 
     def __str__(self):
