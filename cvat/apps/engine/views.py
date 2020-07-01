@@ -364,69 +364,6 @@ class DownloadViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(status=status.HTTP_202_ACCEPTED)
 
 
-    @swagger_auto_schema(method='get', operation_summary='Download all images as zip file',
-        responses={'202': openapi.Response(description='Dump of images has been started'),
-            '201': openapi.Response(description='Zip file is ready to download'),
-            '200': openapi.Response(description='Download of file started')})
-    @action(detail=True, methods=['GET'], serializer_class=None,
-        url_path='download_images')
-    def image_export(self, request, pk):
-        if not image_exporter.should_update_images():
-            archive_path = image_exporter.get_image_zip_path()
-            return sendfile(
-                request, archive_path, attachment=True,
-                attachment_filename=osp.basename(archive_path))
-        else:
-            rq_id = "/api/v1/download/0/download_images"
-            queue = django_rq.get_queue("default")
-            rq_job = queue.fetch_job(rq_id)
-            if not rq_job: #If it is not already in queue, start queue
-                queue.enqueue_call(
-                    func=image_exporter.get_all_images,
-                    job_id=rq_id,
-                    meta={"request_time": timezone.localtime()},
-                    result_ttl=60*60*1,
-                    failure_ttl=60*60*1)
-                return Response(status=status.HTTP_202_ACCEPTED)
-            if rq_job.is_finished:
-                filepath = rq_job.return_value
-                assert osp.exists(filepath)
-                rq_job.delete()
-                name = osp.basename(filepath)
-                return sendfile(
-                    request, filepath, attachment=True,
-                    attachment_filename=name
-                )
-            if rq_job.is_failed:
-                rq_job.delete()
-                return Response(
-                    "Could not export dataset. Contact TA at hakon.hukkelas@ntnu.no or on piazza.",
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-    @swagger_auto_schema(method='get', operation_summary='Export entire dataset as COCO',
-        responses={'200': openapi.Response(description='Download of file started')})
-    @action(detail=True, methods=['GET'], serializer_class=None,
-        url_path='download_images_five_fps')
-    def image_export_min(self, request, pk):
-        archive_path = pathlib.Path(settings.DATA_ROOT, "images_mini.zip")
-        assert archive_path.is_file(), "DId not find image file:" + archive_path
-        return sendfile(
-            request, str(archive_path), attachment=True,
-            attachment_filename=str(archive_path.name).lower())
-
-    @swagger_auto_schema(method='get', operation_summary='Export entire dataset as COCO',
-        responses={'200': openapi.Response(description='Download of file started')})
-    @action(detail=True, methods=['GET'], serializer_class=None,
-        url_path='download_waymo')
-    def download_waymo(self, request, pk):
-        archive_path = pathlib.Path(settings.DATA_ROOT, "waymo.zip")
-        assert archive_path.is_file(), "Did not find image file:" + archive_path
-        return sendfile(
-            request, str(archive_path), attachment=True,
-            attachment_filename=str(archive_path.name).lower())
-
-
 @method_decorator(name='list', decorator=swagger_auto_schema(
     operation_summary='Returns a paginated list of tasks according to query parameters (10 tasks per page)',
     manual_parameters=[

@@ -34,13 +34,6 @@ def get_all_images():
         make_zip_archive(temp_dir, dest_path)
     return dest_path
 
-def should_update_images():
-    '''
-    Only update images if the zip does not exist
-    '''
-    zip_path = get_image_zip_path()
-    return not os.path.exists(zip_path)
 
-
-
-
+if __name__ == "__main__":
+    get_all_images()
