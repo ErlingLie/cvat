@@ -47,6 +47,7 @@ from cvat.apps.engine.serializers import (
 from cvat.settings.base import CSS_3RDPARTY, JS_3RDPARTY
 from cvat.apps.engine.utils import av_scan_paths
 from cvat.apps.engine import annotation_exporter
+from cvat.apps.engine import image_exporter
 from . import models, task
 from .log import clogger, slogger
 
@@ -364,32 +365,43 @@ class DownloadViewSet(viewsets.ReadOnlyModelViewSet):
 
 
     @swagger_auto_schema(method='get', operation_summary='Export entire dataset as COCO',
-        responses={'202': openapi.Response(description='Dump of annotations has been started'),
+        responses={'202': openapi.Response(description='Dump of images has been started'),
             '201': openapi.Response(description='Annotations file is ready to download'),
             '200': openapi.Response(description='Download of file started')})
     @action(detail=True, methods=['GET'], serializer_class=None,
         url_path='download_images')
     def image_export(self, request, pk):
-        archive_path = pathlib.Path(settings.DATA_ROOT, "images.zip")
-        if archive_path.is_file():
+        if not image_exporter.should_update_images():
+            archive_path = image_exporter.get_image_zip_path()
             return sendfile(
                 request, str(archive_path), attachment=True,
                 attachment_filename=archive_path.name.lower())
-        source_to_target_path = {}
-        for task in Task.objects.all():
-            for frame_idx in range(task.size):
-                source_path = task.get_frame_path(frame_idx)
-                suffix = pathlib.Path(source_path).suffix
-                subfolder = "train"
-                if task.is_test():
-                    subfolder = "test"
-                target_path = pathlib.Path(
-                    subfolder, "images", str(task.get_global_image_id(frame_idx)) + suffix)
-                source_to_target_path[source_path] = target_path
-
-        with zipfile.ZipFile(str(archive_path), "w") as fp:
-            for spath, tpath in source_to_target_path.items():
-                fp.write(str(spath), str(tpath))
+        else:
+            rq_id = "/api/v1/download/0/download_images"
+            queue = django_rq.get_queue("default")
+            rq_job = queue.fetch_job(rq_id)
+            if not rq_job: #If it is not already in queue, start queue
+                queue.enqueue_call(
+                    func=image_exporter.get_all_images,
+                    job_id=rq_id,
+                    meta={"request_time": timezone.localtime()},
+                    result_ttl=60*60*1,
+                    failure_ttl=60*60*1)
+                return Response(status=status.HTTP_202_ACCEPTED)
+            if rq_job.is_finished:
+                filepath = rq_job.return_value
+                assert osp.exists(filepath)
+                rq_job.delete()
+                name = osp.basename(filepath)
+                return sendfile(
+                    request, filepath, attachment=True,
+                    attachment_filename=name
+                )
+            if rq_job.is_failed:
+                rq_job.delete()
+                return Response(
+                    "Could not export dataset. Contact TA at hakon.hukkelas@ntnu.no or on piazza.",
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return sendfile(
             request, str(archive_path), attachment=True,
             attachment_filename=str(archive_path.name).lower())

@@ -102,6 +102,9 @@ class Data(models.Model):
     def get_preview_path(self):
         return os.path.join(self.get_data_dirname(), 'preview.jpeg')
 
+    def get_raw_path(self):
+        return Video.objects.get(data=self)
+
 class Video(models.Model):
     data = models.OneToOneField(Data, on_delete=models.CASCADE, related_name="video", null=True)
     path = models.CharField(max_length=1024, default='')
@@ -176,6 +179,21 @@ class Task(models.Model):
 
     def get_task_artifacts_dirname(self):
         return os.path.join(self.get_task_dirname(), 'artifacts')
+
+    def is_test(self):
+        video_path = self.data.get_raw_path()
+        # video_name = os.path.basename(video_path)
+        # is_test = settings.FILENAME_TO_IS_TEST[video_name]
+        is_test = self.id % 2 == 0
+        return is_test
+
+    def get_global_image_id(self, frame_idx):
+        # We make the assumption that every video is 20s or less at 35 FPS. +50 frames for buffer.
+        assert self.data.size < 750
+        assert frame_idx < 750
+        global_image_id = 750 * self.id + frame_idx
+        return global_image_id
+
 
     def __str__(self):
         return self.name

@@ -1,52 +1,58 @@
 import pathlib
 import json
 import os.path as osp
-from cvat.apps.dataset_manager.task import TaskData
-from cvat.apps.dataset_manager.task import get_task_data
+from cvat.apps.dataset_manager.task import  get_task_data
+from cvat.apps.dataset_manager.bindings import TaskData
 from cvat.apps.dataset_manager.annotation import AnnotationIR
-from django.db import transaction
 from django.conf import settings
 from cvat.apps.engine.log import slogger
 from django.utils import timezone
 
 
-import zipfile
-from tempfile import TemporaryDirectory
 
 from cvat.apps.engine.models import Task, StatusChoice
 
 
-def get_all_annotations(include_test):
-    '''
-    Dumps all annotation data to COCO format.
-    '''
+
+def make_meta_json():
     annotations = {"annotations": [],
                     "images" : [],
                     "info" : {},
                     "licences":[],
                     "categories":[]}
     annotations["licences"].append({"name": "", "id":0, "url":""})
-    annotations["info"] = {"date_created" : str(timezone.localtime().timestamp()),
+    annotations["info"] = {"date_created" : str(timezone.localtime()),
                             "contributor" : "", "description" : "" , "url" : "", "version" : "",
                             "year" : ""}
+    print(annotations["info"])
+    return annotations
+
+def get_all_annotations():
+    '''
+    Dumps all annotation data to COCO format.
+    Updates both train and test data.
+    '''
+    train = make_meta_json()
+    test  = make_meta_json()
+
     annotation_id = 1
-    image_id = 0
     for task in Task.objects.all():
-        # if task.is_test() and not include_test:
-        #     continue
-        # elif not task.is_test() and include_test:
-        #     continue
+        if task.status != StatusChoice.COMPLETED:
+            continue
         task_data = TaskData(AnnotationIR(get_task_data(task.id)),task)
-        for frame_annotation in task_data.group_by_frame():
+        for frame_nmbr, frame_annotation in enumerate(task_data.group_by_frame()):
             # get frame info
-            image_id += 1
+            image_id = task.get_global_image_id(frame_nmbr)
             image_db = {}
-            image_db["id"] = image_id #task.get_lobal_image_id(frame_nbmr)
+            image_db["id"] = image_id
             image_db["file_name"] = f"{image_id-1}.jpg"
             image_db["license"] = 0
             image_db["width"] = frame_annotation.width
             image_db["height"] = frame_annotation.height
-            annotations["images"].append(image_db)
+            if task.is_test():
+                test["images"].append(image_db)
+            else:
+                train["images"].append(image_db)
             # iterate over all shapes on the frame
             for shape in frame_annotation.labeled_shapes:
                 label_id = task_data._get_label_id(shape.label)
@@ -56,11 +62,19 @@ def get_all_annotations(include_test):
                 ybr = shape.points[3]
                 w = xbr-xtl
                 h = ybr-ytl
-                an_db = {"id" : annotation_id, "image_id" : image_id, "category_id" : label_id,
+                an_db = {"id" :  annotation_id, "image_id" : image_id, "category_id" : label_id,
                 "bbox" : [xtl, ytl, w, h], "area" : w*h, "iscrowd" : 0 }
-                annotations["annotations"].append(an_db)
+                if task.is_test():
+                    test["annotations"].append(image_db)
+                else:
+                    train["annotations"].append(image_db)
                 annotation_id += 1
-    return annotations
+    train_path = get_json_path(False)
+    test_path = get_json_path(True)
+    with open(train_path, "w") as json_file:
+        json.dump(train, json_file)
+    with open(test_path, "w") as json_file:
+        json.dump(test, json_file)
 
 
 def get_json_path(include_test):
@@ -82,10 +96,7 @@ def should_update_annotation(include_test):
     current_time = timezone.localtime().timestamp()
     #Update if max time is larger than archive time
     #And archive is more than eight hours old
-    if(max_time > archive_time and current_time > archive_time + 8*60*60):
-        print("Updating")
-    else:
-        print("Not updating")
+    print("Should update returns", max_time > archive_time and current_time > archive_time + 8*60*60)
     return max_time > archive_time and current_time > archive_time + 8*60*60
 
 
@@ -93,12 +104,9 @@ def get_annotation_filepath(include_test):
     json_path = get_json_path(include_test)
     if not should_update_annotation(include_test):
         return json_path
-    annotations = get_all_annotations(include_test)
-    with open(json_path, "w") as fp:
-        json.dump(annotations, fp)
+    get_all_annotations()
     return json_path
 
 
 def annotation_file_ready(include_test):
-    print("Running annotation_file_ready")
     return not should_update_annotation(include_test)
