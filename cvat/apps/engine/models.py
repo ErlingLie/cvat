@@ -182,9 +182,11 @@ class Task(models.Model):
 
     def is_test(self):
         video_path = self.data.get_raw_path()
-        # video_name = os.path.basename(video_path)
-        # is_test = settings.FILENAME_TO_IS_TEST[video_name]
-        is_test = self.id % 2 == 0
+        video_name = os.path.basename(video_path)
+        try:
+            is_test = settings.FILENAME_TO_IS_TEST[video_name]
+        except:
+            is_test = False
         return is_test
 
     def get_global_image_id(self, frame_idx):

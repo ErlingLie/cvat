@@ -436,3 +436,16 @@ RESTRICTIONS = {
         'engine.role.admin',
         ),
 }
+
+
+
+# Load filenames and if they are train or not.
+FILENAME_TO_IS_TEST = {}
+assert os.path.isfile("utils/scripts/is_train.txt"),\
+    "Did not find test/train split file: utils/scripts/is_train.txt"
+with open("utils/scripts/is_train.txt", "r") as fp:
+    lines = list(fp.readlines())
+    for line in lines:
+        is_test, filename = line.split(", ")
+        is_test = is_test.strip() == 'True'
+        FILENAME_TO_IS_TEST[filename.strip()] = is_test
