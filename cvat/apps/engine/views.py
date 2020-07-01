@@ -319,7 +319,7 @@ class DownloadViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
 
-    @swagger_auto_schema(method='get', operation_summary='Export entire dataset as COCO',
+    @swagger_auto_schema(method='get', operation_summary='Export entire dataset as COCO annotations',
         responses={
             '200': openapi.Response(description='Download of file started'),
             '202': openapi.Response(description='Dump of annotations has been started. Try again in two minutes.')
@@ -364,9 +364,9 @@ class DownloadViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(status=status.HTTP_202_ACCEPTED)
 
 
-    @swagger_auto_schema(method='get', operation_summary='Export entire dataset as COCO',
+    @swagger_auto_schema(method='get', operation_summary='Download all images as zip file',
         responses={'202': openapi.Response(description='Dump of images has been started'),
-            '201': openapi.Response(description='Annotations file is ready to download'),
+            '201': openapi.Response(description='Zip file is ready to download'),
             '200': openapi.Response(description='Download of file started')})
     @action(detail=True, methods=['GET'], serializer_class=None,
         url_path='download_images')
@@ -374,8 +374,8 @@ class DownloadViewSet(viewsets.ReadOnlyModelViewSet):
         if not image_exporter.should_update_images():
             archive_path = image_exporter.get_image_zip_path()
             return sendfile(
-                request, str(archive_path), attachment=True,
-                attachment_filename=archive_path.name.lower())
+                request, archive_path, attachment=True,
+                attachment_filename=osp.basename(archive_path))
         else:
             rq_id = "/api/v1/download/0/download_images"
             queue = django_rq.get_queue("default")
@@ -402,9 +402,6 @@ class DownloadViewSet(viewsets.ReadOnlyModelViewSet):
                 return Response(
                     "Could not export dataset. Contact TA at hakon.hukkelas@ntnu.no or on piazza.",
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return sendfile(
-            request, str(archive_path), attachment=True,
-            attachment_filename=str(archive_path.name).lower())
 
 
     @swagger_auto_schema(method='get', operation_summary='Export entire dataset as COCO',

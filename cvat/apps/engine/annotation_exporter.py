@@ -1,4 +1,3 @@
-import pathlib
 import json
 import os.path as osp
 from cvat.apps.dataset_manager.task import  get_task_data
@@ -65,9 +64,9 @@ def get_all_annotations():
                 an_db = {"id" :  annotation_id, "image_id" : image_id, "category_id" : label_id,
                 "bbox" : [xtl, ytl, w, h], "area" : w*h, "iscrowd" : 0 }
                 if task.is_test():
-                    test["annotations"].append(image_db)
+                    test["annotations"].append(an_db)
                 else:
-                    train["annotations"].append(image_db)
+                    train["annotations"].append(an_db)
                 annotation_id += 1
     train_path = get_json_path(False)
     test_path = get_json_path(True)
@@ -81,8 +80,8 @@ def get_json_path(include_test):
     label_name = "labels"
     if include_test:
         label_name = label_name + "_test"
-    json_path = pathlib.Path(settings.DATA_ROOT, label_name + ".json")
-    return str(json_path)
+    json_path = osp.join(settings.DATA_ROOT, label_name + ".json")
+    return json_path
 
 
 def should_update_annotation(include_test):
@@ -96,7 +95,6 @@ def should_update_annotation(include_test):
     current_time = timezone.localtime().timestamp()
     #Update if max time is larger than archive time
     #And archive is more than eight hours old
-    print("Should update returns", max_time > archive_time and current_time > archive_time + 8*60*60)
     return max_time > archive_time and current_time > archive_time + 8*60*60
 
 
