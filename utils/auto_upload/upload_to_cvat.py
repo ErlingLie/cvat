@@ -90,23 +90,35 @@ if __name__ == "__main__":
         print("Sleeping 60 seconds")
         time.sleep(60)
 
-
-    for i, track_file in enumerate(tracks):
-        print("Sleeping 40")
-        time.sleep(40)
-        annotations = make_meta_information(2000, classes )
-        with open(os.path.join(args.input_tracks, track_file), "r") as json_file:
-            track_data = json.load(json_file)
-        print("Making xml file from " + track_file)
-        insert_tracks_from_list(annotations, track_data, classes)
-        mydata = ET.tostring(annotations, encoding="unicode")
-        mydata = xml.dom.minidom.parseString(mydata)
-        with open("Temp.xml", "w") as myfile:
-            myfile.write(mydata.toprettyxml())
+    tracks.sort()
+    if tracks[0].split(".")[-1] == "json":
+        for i, track_file in enumerate(tracks):
+            print("Sleeping 40")
+            time.sleep(40)
+            annotations = make_meta_information(2000, classes )
+            with open(os.path.join(args.input_tracks, track_file), "r") as json_file:
+                track_data = json.load(json_file)
+            print("Making xml file from " + track_file)
+            insert_tracks_from_list(annotations, track_data, classes)
+            mydata = ET.tostring(annotations, encoding="unicode")
+            mydata = xml.dom.minidom.parseString(mydata)
+            with open("Temp.xml", "w") as myfile:
+                myfile.write(mydata.toprettyxml())
+            print(subprocess.check_output([
+                "../cli/cli.py",
+                "--auth",
+                username+":"+password,
+                "upload",
+                str(ids[i]),
+                "Temp.xml"]))
+    elif tracks[0].split(".")[-1] == "xml":
+        for i, track_file in enumerate(tracks):
+        print("Sleeping 5")
+        time.sleep(5)
         print(subprocess.check_output([
             "../cli/cli.py",
             "--auth",
             username+":"+password,
             "upload",
             str(ids[i]),
-            "Temp.xml"]))
+            os.path.join(args.input_tracks, track_file)]))

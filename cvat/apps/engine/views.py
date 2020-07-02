@@ -47,7 +47,6 @@ from cvat.apps.engine.serializers import (
 from cvat.settings.base import CSS_3RDPARTY, JS_3RDPARTY
 from cvat.apps.engine.utils import av_scan_paths
 from cvat.apps.engine import annotation_exporter
-from cvat.apps.engine import image_exporter
 from . import models, task
 from .log import clogger, slogger
 
