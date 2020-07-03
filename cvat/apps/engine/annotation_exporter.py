@@ -6,7 +6,7 @@ from cvat.apps.dataset_manager.annotation import AnnotationIR
 from django.conf import settings
 from cvat.apps.engine.log import slogger
 from django.utils import timezone
-
+import zipfile
 
 
 from cvat.apps.engine.models import Task, StatusChoice
@@ -68,6 +68,11 @@ def get_all_annotations():
                 else:
                     train["annotations"].append(an_db)
                 annotation_id += 1
+    label_map = task_data._label_mapping
+    for key, val in label_map.items():
+        label_dict = {"id" : key, "name" : val.name, "supercategory" : "", "keypoints": [], "skeleton" : []}
+        test["categories"].append(label_dict)
+        train["categories"].append(label_dict)
     train_path = get_json_path(False)
     test_path = get_json_path(True)
     with open(train_path, "w") as json_file:
@@ -83,11 +88,13 @@ def get_json_path(include_test):
     json_path = osp.join(settings.DATA_ROOT, label_name + ".json")
     return json_path
 
+def get_zip_path():
+    return osp.join(settings.DATA_ROOT, "labels.zip")
 
 def should_update_annotation(include_test):
     json_path = get_json_path(include_test)
     tasks = Task.objects.all()
-    if not osp.exists(json_path):
+    if not osp.exists(json_path) or not osp.exists(get_zip_path()):
         return True
     #Find max time of newest updated task
     max_time = max(timezone.localtime(t.updated_date).timestamp() for t in tasks)
@@ -100,7 +107,7 @@ def should_update_annotation(include_test):
 
 def get_annotation_filepath(include_test):
     json_path = get_json_path(False)
-    zip_path = json_path.split(".")[0] + ".zip"
+    zip_path = get_zip_path()
     if not should_update_annotation(include_test):
         return zip_path if include_test else json_path
     get_all_annotations()
