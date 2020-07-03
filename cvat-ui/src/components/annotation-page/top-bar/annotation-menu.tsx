@@ -46,7 +46,7 @@ export default function AnnotationMenuComponent(props: Props): JSX.Element {
         user,
     } = props;
 
-    const is_superuser = user == false ? false : user.isSuperuser
+    const is_superuser = user == null ? false : user.isSuperuser
 
     let latestParams: ClickParam | null = null;
     function onClickMenuWrapper(params: ClickParam | null, file?: File): void {

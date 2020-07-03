@@ -24,7 +24,7 @@ function TopBarComponent(props: VisibleTopBarProps & RouteComponentProps): JSX.E
         user,
     } = props;
 
-    const is_superuser = user == false ? false : user.isSuperuser
+    const is_superuser = user == null ? false : user.isSuperuser
     return (
         <>
             <Row type='flex' justify='center' align='middle'>

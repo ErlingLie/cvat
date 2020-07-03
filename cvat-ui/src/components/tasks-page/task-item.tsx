@@ -176,7 +176,7 @@ class TaskItemComponent extends React.PureComponent<TaskItemProps & RouteCompone
             user,
         } = this.props;
         const { id } = taskInstance;
-        const is_superuser = user == false ? false : user.isSuperuser
+        const is_superuser = user == null ? false : user.isSuperuser
         return (
             <Col span={4}>
                 <Row type='flex' justify='end'>

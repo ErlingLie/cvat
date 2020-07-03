@@ -39,7 +39,7 @@ function JobListComponent(props: Props & RouteComponentProps): JSX.Element {
         },
     } = props;
 
-    const is_superuser = user == false ? false : user.isSuperuser
+    const is_superuser = user == null ? false : user.isSuperuser
     const { jobs, id: taskId } = taskInstance;
     const columns = [{
         title: 'Job',

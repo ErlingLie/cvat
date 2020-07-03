@@ -67,7 +67,7 @@ class TaskPageComponent extends React.PureComponent<Props> {
                 />
             );
         }
-        const is_superuser = user == false ? false : user.isSuperuser
+        const is_superuser = user == null ? false : user.isSuperuser
         return (
             <>
                 <Row type='flex' justify='center' align='top' className='cvat-task-details-wrapper'>
