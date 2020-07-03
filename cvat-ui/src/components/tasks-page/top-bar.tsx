@@ -13,6 +13,7 @@ import Text from 'antd/lib/typography/Text';
 interface VisibleTopBarProps {
     onSearch: (value: string) => void;
     searchValue: string;
+    user: any;
 }
 
 function TopBarComponent(props: VisibleTopBarProps & RouteComponentProps): JSX.Element {
@@ -20,8 +21,10 @@ function TopBarComponent(props: VisibleTopBarProps & RouteComponentProps): JSX.E
         searchValue,
         history,
         onSearch,
+        user,
     } = props;
 
+    const is_superuser = user == false ? false : user.isSuperuser
     return (
         <>
             <Row type='flex' justify='center' align='middle'>
@@ -45,6 +48,7 @@ function TopBarComponent(props: VisibleTopBarProps & RouteComponentProps): JSX.E
                     xl={{ span: 8 }}
                     xxl={{ span: 7 }}
                 >
+                    {is_superuser &&
                     <Button
                         size='large'
                         id='cvat-create-task-button'
@@ -55,7 +59,7 @@ function TopBarComponent(props: VisibleTopBarProps & RouteComponentProps): JSX.E
                         icon='plus'
                     >
                          Create new task
-                    </Button>
+                    </Button> }
                 </Col>
             </Row>
         </>

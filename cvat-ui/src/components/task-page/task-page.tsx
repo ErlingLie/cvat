@@ -21,6 +21,7 @@ interface TaskPageComponentProps {
     fetching: boolean;
     deleteActivity: boolean | null;
     installedGit: boolean;
+    user: any;
     getTask: () => void;
 }
 
@@ -43,6 +44,7 @@ class TaskPageComponent extends React.PureComponent<Props> {
             task,
             fetching,
             getTask,
+            user,
         } = this.props;
 
         if (task === null) {
@@ -65,12 +67,12 @@ class TaskPageComponent extends React.PureComponent<Props> {
                 />
             );
         }
-
+        const is_superuser = user == false ? false : user.isSuperuser
         return (
             <>
                 <Row type='flex' justify='center' align='top' className='cvat-task-details-wrapper'>
                     <Col md={22} lg={18} xl={16} xxl={14}>
-                        <TopBarComponent taskInstance={(task as Task).instance} />
+                        <TopBarComponent taskInstance={(task as Task).instance} is_superuser={is_superuser} />
                         <DetailsContainer task={(task as Task)} />
                         <JobListContainer task={(task as Task)} />
                     </Col>

@@ -237,6 +237,9 @@ class CVATApplication extends React.PureComponent<CVATAppProps & RouteComponentP
         const withModels = installedAutoAnnotation
             || installedTFAnnotation || installedTFSegmentation;
 
+
+
+        const is_superuser = user == null ? false : user.isSuperuser;
         const subKeyMap = {
             SWITCH_SHORTCUTS: keyMap.SWITCH_SHORTCUTS,
             OPEN_SETTINGS: keyMap.OPEN_SETTINGS,
@@ -275,7 +278,9 @@ class CVATApplication extends React.PureComponent<CVATAppProps & RouteComponentP
                                     <Switch>
                                         <Route exact path='/settings' component={SettingsPageContainer} />
                                         <Route exact path='/tasks' component={TasksPageContainer} />
-                                        <Route exact path='/tasks/create' component={CreateTaskPageContainer} />
+                                        {is_superuser
+                                            && <Route exact path='/tasks/create' component={CreateTaskPageContainer} />}
+
                                         <Route exact path='/tasks/:id' component={TaskPageContainer} />
                                         <Route exact path='/tasks/:tid/jobs/:jid' component={AnnotationPageContainer} />
                                         {withModels

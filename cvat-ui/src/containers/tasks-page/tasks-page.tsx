@@ -24,6 +24,7 @@ interface StateToProps {
     numberOfTasks: number;
     numberOfVisibleTasks: number;
     numberOfHiddenTasks: number;
+    user : any;
 }
 
 interface DispatchToProps {
@@ -33,6 +34,7 @@ interface DispatchToProps {
 
 function mapStateToProps(state: CombinedState): StateToProps {
     const { tasks } = state;
+    const { auth }  = state;
 
     return {
         tasksFetching: state.tasks.fetching,
@@ -41,6 +43,7 @@ function mapStateToProps(state: CombinedState): StateToProps {
         numberOfVisibleTasks: state.tasks.current.length,
         numberOfHiddenTasks: tasks.hideEmpty ? tasks.current
             .filter((task: Task): boolean => !task.instance.jobs.length).length : 0,
+        user : auth.user,
     };
 }
 

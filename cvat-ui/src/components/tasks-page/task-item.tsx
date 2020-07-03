@@ -25,6 +25,7 @@ export interface TaskItemProps {
     deleted: boolean;
     hidden: boolean;
     activeInference: ActiveInference | null;
+    user: any;
     cancelAutoAnnotation(): void;
 }
 
@@ -172,9 +173,10 @@ class TaskItemComponent extends React.PureComponent<TaskItemProps & RouteCompone
         const {
             taskInstance,
             history,
+            user,
         } = this.props;
         const { id } = taskInstance;
-
+        const is_superuser = user == false ? false : user.isSuperuser
         return (
             <Col span={4}>
                 <Row type='flex' justify='end'>
@@ -194,6 +196,7 @@ class TaskItemComponent extends React.PureComponent<TaskItemProps & RouteCompone
                         </Button>
                     </Col>
                 </Row>
+                {is_superuser &&
                 <Row type='flex' justify='end'>
                     <Col className='cvat-item-open-task-actions'>
                         <Text className='cvat-text-color'>Actions</Text>
@@ -201,7 +204,7 @@ class TaskItemComponent extends React.PureComponent<TaskItemProps & RouteCompone
                             <Icon className='cvat-menu-icon' component={MenuIcon} />
                         </Dropdown>
                     </Col>
-                </Row>
+                </Row>}
             </Col>
         );
     }
@@ -220,6 +223,7 @@ class TaskItemComponent extends React.PureComponent<TaskItemProps & RouteCompone
         if (hidden) {
             (style as any).display = 'none';
         }
+
 
         return (
             <Row className='cvat-tasks-list-item' type='flex' justify='center' align='top' style={{ ...style }}>

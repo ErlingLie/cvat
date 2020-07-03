@@ -14,10 +14,11 @@ import { MenuIcon } from 'icons';
 
 interface DetailsComponentProps {
     taskInstance: any;
+    is_superuser: boolean;
 }
 
 export default function DetailsComponent(props: DetailsComponentProps): JSX.Element {
-    const { taskInstance } = props;
+    const { taskInstance, is_superuser } = props;
     const { id } = taskInstance;
 
     return (
@@ -25,6 +26,7 @@ export default function DetailsComponent(props: DetailsComponentProps): JSX.Elem
             <Col>
                 <Text className='cvat-title'>{`Task details #${id}`}</Text>
             </Col>
+            {is_superuser &&
             <Col>
                 <Dropdown overlay={
                     (
@@ -39,7 +41,7 @@ export default function DetailsComponent(props: DetailsComponentProps): JSX.Elem
                         <Icon className='cvat-menu-icon' component={MenuIcon} />
                     </Button>
                 </Dropdown>
-            </Col>
+            </Col>}
         </Row>
     );
 }

@@ -24,6 +24,7 @@ interface TasksPageProps {
     numberOfTasks: number;
     numberOfVisibleTasks: number;
     numberOfHiddenTasks: number;
+    user : any;
     onGetTasks: (gettingQuery: TasksQuery) => void;
     hideEmptyTasks: (hideEmpty: boolean) => void;
 }
@@ -201,6 +202,7 @@ class TasksPageComponent extends React.PureComponent<TasksPageProps & RouteCompo
             tasksFetching,
             gettingQuery,
             numberOfVisibleTasks,
+            user,
         } = this.props;
 
         if (tasksFetching) {
@@ -214,6 +216,7 @@ class TasksPageComponent extends React.PureComponent<TasksPageProps & RouteCompo
                 <TopBar
                     onSearch={this.handleSearch}
                     searchValue={getSearchField(gettingQuery)}
+                    user={user}
                 />
                 {numberOfVisibleTasks
                     ? (

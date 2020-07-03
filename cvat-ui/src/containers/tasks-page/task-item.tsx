@@ -22,6 +22,7 @@ interface StateToProps {
     previewImage: string;
     taskInstance: any;
     activeInference: ActiveInference | null;
+    user: any;
 }
 
 interface DispatchToProps {
@@ -38,6 +39,7 @@ function mapStateToProps(state: CombinedState, own: OwnProps): StateToProps {
     const task = state.tasks.current[own.idx];
     const { deletes } = state.tasks.activities;
     const id = own.taskID;
+    const { auth } = state
 
     return {
         hidden: state.tasks.hideEmpty && task.instance.jobs.length === 0,
@@ -45,6 +47,7 @@ function mapStateToProps(state: CombinedState, own: OwnProps): StateToProps {
         previewImage: task.preview,
         taskInstance: task.instance,
         activeInference: state.models.inferences[id] || null,
+        user: auth.user,
     };
 }
 
