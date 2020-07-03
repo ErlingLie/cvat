@@ -20,6 +20,7 @@ interface Props {
     exportActivities: string[] | null;
     installedReID: boolean;
     taskID: number;
+    user: any;
     onClickMenu(params: ClickParam, file?: File): void;
 }
 
@@ -42,7 +43,10 @@ export default function AnnotationMenuComponent(props: Props): JSX.Element {
         exportActivities,
         installedReID,
         taskID,
+        user,
     } = props;
+
+    const is_superuser = user == false ? false : user.isSuperuser
 
     let latestParams: ClickParam | null = null;
     function onClickMenuWrapper(params: ClickParam | null, file?: File): void {
@@ -91,7 +95,7 @@ export default function AnnotationMenuComponent(props: Props): JSX.Element {
 
     return (
         <Menu onClick={onClickMenuWrapper} className='cvat-annotation-menu' selectable={false}>
-            {
+            {is_superuser &&
                 DumpSubmenu({
                     taskMode,
                     dumpers,
@@ -99,7 +103,7 @@ export default function AnnotationMenuComponent(props: Props): JSX.Element {
                     menuKey: Actions.DUMP_TASK_ANNO,
                 })
             }
-            {
+            {is_superuser &&
                 LoadSubmenu({
                     loaders,
                     loadActivity,
@@ -109,14 +113,13 @@ export default function AnnotationMenuComponent(props: Props): JSX.Element {
                     menuKey: Actions.LOAD_JOB_ANNO,
                 })
             }
-            {
+            {is_superuser &&
                 ExportSubmenu({
                     exporters: dumpers,
                     exportActivities,
                     menuKey: Actions.EXPORT_TASK_DATASET,
                 })
             }
-
             <Menu.Item key={Actions.REMOVE_ANNO}>
                 Remove annotations
             </Menu.Item>

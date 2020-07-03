@@ -18,6 +18,7 @@ interface OwnProps {
 
 interface StateToProps {
     registeredUsers: any[];
+    user: any;
 }
 
 interface DispatchToProps {
@@ -27,6 +28,7 @@ interface DispatchToProps {
 function mapStateToProps(state: CombinedState): StateToProps {
     return {
         registeredUsers: state.users.users,
+        user: state.auth.user,
     };
 }
 
@@ -41,6 +43,7 @@ function TaskPageContainer(props: StateToProps & DispatchToProps & OwnProps): JS
         task,
         registeredUsers,
         onJobUpdate,
+        user,
     } = props;
 
     return (
@@ -48,6 +51,7 @@ function TaskPageContainer(props: StateToProps & DispatchToProps & OwnProps): JS
             taskInstance={task.instance}
             registeredUsers={registeredUsers}
             onJobUpdate={onJobUpdate}
+            user = {user}
         />
     );
 }

@@ -25,18 +25,21 @@ interface Props {
     taskInstance: any;
     registeredUsers: any[];
     onJobUpdate(jobInstance: any): void;
+    user: any;
 }
 
 function JobListComponent(props: Props & RouteComponentProps): JSX.Element {
     const {
         taskInstance,
         registeredUsers,
+        user,
         onJobUpdate,
         history: {
             push,
         },
     } = props;
 
+    const is_superuser = user == false ? false : user.isSuperuser
     const { jobs, id: taskId } = taskInstance;
     const columns = [{
         title: 'Job',
@@ -55,12 +58,14 @@ function JobListComponent(props: Props & RouteComponentProps): JSX.Element {
                     {`Job #${id}`}
                 </Button>
                 |
+                {is_superuser &&
                 <Tooltip title='Old version of UI is deprecated and will be removed from
                                 new versions of UI. We still recomend it only if you use
                                 specific features from it like cuboids annotation.'
                 >
                     <Button type='link' href={`${baseURL}/?id=${id}`}>Old UI</Button>
                 </Tooltip>
+                }
             </div>
         ),
     }, {

@@ -27,6 +27,7 @@ interface StateToProps {
     dumpActivities: string[] | null;
     exportActivities: string[] | null;
     installedReID: boolean;
+    user: any;
 }
 
 interface DispatchToProps {
@@ -60,6 +61,7 @@ function mapStateToProps(state: CombinedState): StateToProps {
             list,
         },
     } = state;
+    const { auth } = state;
 
     const taskID = jobInstance.task.id;
     const jobID = jobInstance.id;
@@ -72,6 +74,7 @@ function mapStateToProps(state: CombinedState): StateToProps {
         jobInstance,
         annotationFormats,
         installedReID: list.REID,
+        user: auth.user,
     };
 }
 
@@ -110,6 +113,7 @@ function AnnotationMenuContainer(props: Props): JSX.Element {
         dumpActivities,
         exportActivities,
         installedReID,
+        user,
     } = props;
 
     const onClickMenu = (params: ClickParam, file?: File): void => {
@@ -158,6 +162,7 @@ function AnnotationMenuContainer(props: Props): JSX.Element {
             installedReID={installedReID}
             onClickMenu={onClickMenu}
             taskID={jobInstance.task.id}
+            user={user}
         />
     );
 }
