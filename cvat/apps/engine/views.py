@@ -348,9 +348,9 @@ class DownloadViewSet(viewsets.ReadOnlyModelViewSet):
             return Response(status=status.HTTP_202_ACCEPTED)
         if rq_job.is_finished:
             filepath = rq_job.return_value
-            assert osp.exists(filepath)
             rq_job.delete()
             name = osp.basename(filepath)
+            assert osp.exists(filepath)
             return sendfile(
                 request, filepath, attachment=True,
                 attachment_filename=name

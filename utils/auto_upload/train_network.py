@@ -1,30 +1,13 @@
-# You may need to restart your runtime prior to this, to let your installation take effect
-# Some basic setup:
-# Setup detectron2 logger
 from detectron2.engine import DefaultTrainer
 from detectron2.data.datasets import register_coco_instances
 import os
-import subprocess as sup
 from detectron2.evaluation import COCOEvaluator
 from detectron2.data import MetadataCatalog
-from detectron2.utils.visualizer import Visualizer
 from detectron2.config import get_cfg
-from detectron2.engine import DefaultPredictor, launch
 from detectron2 import model_zoo
-from detectron2.data import DatasetMapper, build_detection_test_loader
-import sys
-import random
-import cv2
-import numpy as np
 from detectron2.utils.logger import setup_logger
 setup_logger()
 
-# import some common libraries
-#from google.colab.patches import cv2_imshow
-
-# import some common detectron2 utilities
-# Extra utils
-# prep dataset
 
 register_coco_instances("train_set", {}, "code_workspace/datasets/train_split.json",
                         "code_workspace/datasets/train/images")
@@ -33,9 +16,6 @@ register_coco_instances("val_set", {}, "code_workspace/datasets/val_split.json",
                         "code_workspace/datasets/train/images")
 register_coco_instances("test_set", {}, "code_workspace/datasets/test_labels_min.json",
                         "code_workspace/datasets/test/images")
-
-MetadataCatalog.get(
-    "train_set").json_file = "code_workspace/datasets/train_split.json"
 
 # train
 

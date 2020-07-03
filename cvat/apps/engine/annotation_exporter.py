@@ -99,11 +99,16 @@ def should_update_annotation(include_test):
 
 
 def get_annotation_filepath(include_test):
-    json_path = get_json_path(include_test)
+    json_path = get_json_path(False)
+    zip_path = json_path.split(".")[0] + ".zip"
     if not should_update_annotation(include_test):
-        return json_path
+        return zip_path if include_test else json_path
     get_all_annotations()
-    return json_path
+    with zipfile.ZipFile(zip_path, "w") as zip_file:
+        zip_file.write(json_path, osp.basename(json_path))
+        test_path = get_json_path(True)
+        zip_file.write(test_path, osp.basename(test_path))
+    return zip_path if include_test else json_path
 
 
 def annotation_file_ready(include_test):

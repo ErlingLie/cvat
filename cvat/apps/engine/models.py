@@ -103,7 +103,7 @@ class Data(models.Model):
         return os.path.join(self.get_data_dirname(), 'preview.jpeg')
 
     def get_raw_path(self):
-        return Video.objects.get(data=self)
+        return Video.objects.get(data=self).path
 
 class Video(models.Model):
     data = models.OneToOneField(Data, on_delete=models.CASCADE, related_name="video", null=True)
