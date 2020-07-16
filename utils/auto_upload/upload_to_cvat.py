@@ -19,6 +19,8 @@ def insert_labels(parent, labels):
 
 def insert_tracks_from_list(parent, data, labels):
     for i, track_class in enumerate(data):
+        if len(track_class.keys()) == 0:
+            continue
         for track_id, bboxes in track_class.items():
             track_node = ET.SubElement(parent, "track",\
                         {"id": str(track_id), "label" : labels[i]})
@@ -64,7 +66,7 @@ if __name__ == "__main__":
     parser.add_argument("username", type=str, help = "Username")
     parser.add_argument("password", type=str, help = "Password")
     args = parser.parse_args()
-    classes = ["Lobster", "Interaction"]
+    classes = ["vehicle", "person", "sign", "cyclist"]
     videos = os.listdir(args.input_videos)
     tracks = os.listdir(args.input_tracks)
     username = args.username
@@ -113,12 +115,12 @@ if __name__ == "__main__":
                 "Temp.xml"]))
     elif tracks[0].split(".")[-1] == "xml":
         for i, track_file in enumerate(tracks):
-        print("Sleeping 5")
-        time.sleep(5)
-        print(subprocess.check_output([
-            "../cli/cli.py",
-            "--auth",
-            username+":"+password,
-            "upload",
-            str(ids[i]),
-            os.path.join(args.input_tracks, track_file)]))
+            print("Sleeping 5")
+            time.sleep(5)
+            print(subprocess.check_output([
+                "../cli/cli.py",
+                "--auth",
+                username+":"+password,
+                "upload",
+                str(ids[i]),
+                os.path.join(args.input_tracks, track_file)]))

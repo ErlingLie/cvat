@@ -17,7 +17,7 @@ def track_from_detections(detection_path, output_path, num_classes):
     trackers = []
     #Instanciate one tracker per class
     for i in range(num_classes):
-        tracker = Sort()
+        tracker = Sort(5,1)
         trackers.append(tracker)
 
     with open(detection_path, "r") as json_file:

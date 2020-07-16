@@ -1,12 +1,22 @@
 [
     {
-      "name": "Lobster",
-      "id": 5,
+      "name": "vehicle",
+      "id": 1,
       "attributes": []
     },
     {
-      "name": "Interaction",
-    "id": 5,
+      "name": "person",
+    "id": 2,
+    "attributes": []
+    },
+    {
+      "name": "sign",
+    "id": 3,
+    "attributes": []
+    },
+    {
+      "name": "cyclist",
+    "id": 4,
     "attributes": []
     }
 ]
