@@ -23,7 +23,6 @@ def make_meta_json():
     annotations["info"] = {"date_created" : str(timezone.localtime()),
                             "contributor" : "", "description" : "" , "url" : "", "version" : "",
                             "year" : ""}
-    print(annotations["info"])
     return annotations
 
 def get_all_annotations():
@@ -33,7 +32,7 @@ def get_all_annotations():
     '''
     train = make_meta_json()
     test  = make_meta_json()
-
+    task_data = None
     annotation_id = 1
     for task in Task.objects.all():
         if task.status != StatusChoice.COMPLETED:
@@ -68,37 +67,42 @@ def get_all_annotations():
                 else:
                     train["annotations"].append(an_db)
                 annotation_id += 1
-    label_map = task_data._label_mapping
-    for key, val in label_map.items():
-        label_dict = {"id" : key, "name" : val.name, "supercategory" : "", "keypoints": [], "skeleton" : []}
-        test["categories"].append(label_dict)
-        train["categories"].append(label_dict)
-    train_path = get_json_path(False)
-    test_path = get_json_path(True)
+    if task_data != None:
+        label_map = task_data._label_mapping
+        for key, val in label_map.items():
+            label_dict = {"id" : key, "name" : val.name, "supercategory" : "", "keypoints": [], "skeleton" : []}
+            test["categories"].append(label_dict)
+            train["categories"].append(label_dict)
+    train_path, test_path = get_json_paths(True)
+    _, empty_test_path = get_json_paths(False)
     with open(train_path, "w") as json_file:
         json.dump(train, json_file)
     with open(test_path, "w") as json_file:
         json.dump(test, json_file)
+    test["annotations"] = []
+    with open(empty_test_path, "w") as json_file:
+        json.dump(test, json_file)
 
 
-def get_json_path(include_test):
-    label_name = "labels"
-    if include_test:
-        label_name = label_name + "_test"
-    json_path = osp.join(settings.DATA_ROOT, label_name + ".json")
-    return json_path
+def get_json_paths(include_test):
+    train_name = "labels_train.json"
+    test_name = "labels_test.json" if include_test else "empty_test.json"
+    train_path = osp.join(settings.DATA_ROOT, train_name)
+    test_path = osp.join(settings.DATA_ROOT, test_name)
+    return train_path, test_path
 
-def get_zip_path():
-    return osp.join(settings.DATA_ROOT, "labels.zip")
+def get_zip_path(include_test):
+    label_name = "labels_with_test.zip" if include_test else "labels.zip"
+    return osp.join(settings.DATA_ROOT, label_name)
 
 def should_update_annotation(include_test):
-    json_path = get_json_path(include_test)
-    tasks = Task.objects.all()
-    if not osp.exists(json_path) or not osp.exists(get_zip_path()):
+    zip_path = get_zip_path(include_test)
+    if not osp.exists(zip_path):
         return True
     #Find max time of newest updated task
+    tasks = Task.objects.all()
     max_time = max(timezone.localtime(t.updated_date).timestamp() for t in tasks)
-    archive_time = osp.getmtime(json_path)
+    archive_time = osp.getmtime(zip_path)
     current_time = timezone.localtime().timestamp()
     #Update if max time is larger than archive time
     #And archive is more than eight hours old
@@ -106,16 +110,15 @@ def should_update_annotation(include_test):
 
 
 def get_annotation_filepath(include_test):
-    json_path = get_json_path(False)
-    zip_path = get_zip_path()
+    zip_path = get_zip_path(include_test)
     if not should_update_annotation(include_test):
-        return zip_path if include_test else json_path
+        return zip_path
     get_all_annotations()
     with zipfile.ZipFile(zip_path, "w") as zip_file:
-        zip_file.write(json_path, osp.basename(json_path))
-        test_path = get_json_path(True)
+        train_path, test_path = get_json_paths(include_test)
+        zip_file.write(train_path, osp.basename(train_path))
         zip_file.write(test_path, osp.basename(test_path))
-    return zip_path if include_test else json_path
+    return zip_path
 
 
 def annotation_file_ready(include_test):
