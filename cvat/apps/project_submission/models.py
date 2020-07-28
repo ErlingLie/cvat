@@ -154,7 +154,8 @@ class ProjectSubmission(models.Model):
             # if, for some reason there are multiple entries marked 'is_solution=True'
             # Then this will get the one updated last
             solution = solution.order_by('-timestamp').first()
-            map_tot, map_lb = compute_submission_map(self.submission_json, solution.submission_json)
+        map_tot, map_lb = compute_submission_map(self.submission_json, solution.submission_json)
+        with transaction.atomic():
             self.hidden_submission.update_metrics(map_tot)
             self.public_submission.update_metrics(map_lb)
             self.save()

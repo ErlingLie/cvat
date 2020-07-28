@@ -27,7 +27,7 @@ function TopBarComponent(props: VisibleTopBarProps & RouteComponentProps): JSX.E
     } = props;
 
     const is_superuser = user == null ? false : user.isSuperuser
-    let str_text = "Number of annotated segments: " + numberOfCompletedTasks.toString(10);
+    let str_text = `Number of annotated segments: ${numberOfCompletedTasks.toString(10)}`;
     return (
         <>
             <Row type='flex' justify='center' align='middle'>

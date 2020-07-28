@@ -1,6 +1,6 @@
 import logging
 
-
+import django_rq
 from django.db.models import Max, Q, F
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -45,10 +45,7 @@ class SubmitAnnotation(LoginRequiredMixin, View):
             submission.save()
             submission.submissionmetrics_set.create(metric_type = "hidden", ap = 0, ap50 = 0, ap75 = 0, aps = 0, apm = 0, apl = 0)
             submission.submissionmetrics_set.create(metric_type = "public", ap = 0, ap50 = 0, ap75 = 0, aps = 0, apm = 0, apl = 0)
-            # I think this has to be done after save() to ensure that
-            # The filefield we try to read has actually been created
-            # (But I haven't checked)
-            submission.update_mean_average_precision() # also saves after computation.
+            django_rq.enqueue(submission.update_mean_average_precision) # also saves after computation.
             return redirect('project_submission:submissions')
         else:
             return render(request, self.template, {
