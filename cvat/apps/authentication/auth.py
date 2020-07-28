@@ -114,12 +114,9 @@ def is_job_owner(db_user, db_job):
 @rules.predicate
 def is_job_annotator(db_user, db_job):
     db_task = db_job.segment.task
-    # # A job can be annotated by any user if the task's assignee is None.
-    # has_rights = (db_task.assignee is None and not settings.RESTRICTIONS['reduce_task_visibility']) or is_task_assignee(db_user, db_task)
-    #Can only edit job if task assignee
     if db_task.assignee is not None:
         return db_user == db_task.assignee
-
+    return True
 @rules.predicate
 def has_task_no_assignee(db_user, db_task):
     return db_task.assignee_id is None
@@ -221,7 +218,6 @@ def filter_task_queryset(queryset, user):
     # Don't filter queryset for admin, observer
     if has_admin_role(user) or has_observer_role(user):
         return queryset
-
     return queryset.filter(Q(assignee=user) | Q(assignee=None)).distinct()
 
 class TaskGetQuerySetMixin(object):

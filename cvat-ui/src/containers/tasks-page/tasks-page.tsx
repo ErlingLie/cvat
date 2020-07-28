@@ -25,6 +25,7 @@ interface StateToProps {
     numberOfVisibleTasks: number;
     numberOfHiddenTasks: number;
     user : any;
+    numberOfCompletedTasks: number;
 }
 
 interface DispatchToProps {
@@ -44,6 +45,8 @@ function mapStateToProps(state: CombinedState): StateToProps {
         numberOfHiddenTasks: tasks.hideEmpty ? tasks.current
             .filter((task: Task): boolean => !task.instance.jobs.length).length : 0,
         user : auth.user,
+        numberOfCompletedTasks : tasks.current
+        .filter((task: Task): boolean => task.instance.assignee.id === auth.user.id && task.instance.status === "completed").length,
     };
 }
 

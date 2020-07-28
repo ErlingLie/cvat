@@ -14,6 +14,7 @@ interface VisibleTopBarProps {
     onSearch: (value: string) => void;
     searchValue: string;
     user: any;
+    numberOfCompletedTasks: number;
 }
 
 function TopBarComponent(props: VisibleTopBarProps & RouteComponentProps): JSX.Element {
@@ -22,9 +23,11 @@ function TopBarComponent(props: VisibleTopBarProps & RouteComponentProps): JSX.E
         history,
         onSearch,
         user,
+        numberOfCompletedTasks,
     } = props;
 
     const is_superuser = user == null ? false : user.isSuperuser
+    let str_text = "Number of annotated segments: " + numberOfCompletedTasks.toString(10);
     return (
         <>
             <Row type='flex' justify='center' align='middle'>
@@ -60,6 +63,9 @@ function TopBarComponent(props: VisibleTopBarProps & RouteComponentProps): JSX.E
                     >
                          Create new task
                     </Button> }
+                    {!is_superuser &&
+                        <Text strong>{str_text}</Text>
+                        }
                 </Col>
             </Row>
         </>
