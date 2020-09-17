@@ -43,7 +43,7 @@ def get_all_annotations():
             image_id = task.get_global_image_id(frame_nmbr)
             image_db = {}
             image_db["id"] = image_id
-            image_db["file_name"] = f"{image_id-1}.jpg"
+            image_db["file_name"] = str(image_id) + ".jpg"
             image_db["license"] = 0
             image_db["width"] = frame_annotation.width
             image_db["height"] = frame_annotation.height
