@@ -46,7 +46,7 @@ function mapStateToProps(state: CombinedState): StateToProps {
             .filter((task: Task): boolean => !task.instance.jobs.length).length : 0,
         user : auth.user,
         numberOfCompletedTasks : tasks.current
-        .filter((task: Task): boolean => task.instance.assignee.id === auth.user.id && task.instance.status === "completed").length,
+        .filter((task: Task): boolean => task.instance.assignee != null && task.instance.assignee.id === auth.user.id && task.instance.status === "completed").length,
     };
 }
 
